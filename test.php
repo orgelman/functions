@@ -1,0 +1,3 @@
+<?phg
+echo "test";
+?>

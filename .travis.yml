@@ -4,4 +4,5 @@ php:
   - '7.0'
   - hhvm
   - nightly
-script: - phpunit --configuration ../travis.phpunit.xml.dist
+script: 
+  - phpunit --configuration ../travis.phpunit.xml.dist

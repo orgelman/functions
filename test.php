@@ -1,3 +1,0 @@
-<?phg
-echo "test";
-?>

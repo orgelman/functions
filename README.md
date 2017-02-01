@@ -12,6 +12,7 @@ echo $_Orgelman->toAscii("Hello World");
 ```
 
 ## Installation
+Composer
 ```
 {
     "require": {

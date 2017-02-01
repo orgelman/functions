@@ -3,6 +3,8 @@
     "type": "library",
     "description": "Functions is filed will good-to-have functions",
     "version": "0.0.1-alpha1",
+    "minimum-stability": "dev",
+    "prefer-stable" : true,
     "authors": [
         {
             "name": "Tobias Jonson",

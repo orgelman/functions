@@ -3,7 +3,7 @@ class orgelmanFunctions {
    public $version = "dev-master";
    
    public function __construct() {
-      echo "Orgelman";
+      
    }
    public function __destruct() {
       

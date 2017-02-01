@@ -1,6 +1,12 @@
 <?php 
-
-function toAscii($str, $replace=array(), $delimiter='-') {
+class orgelmanFunctions {
+   public function __construct() {
+      
+   }
+   public function __destruct() {
+      
+   }
+   public function toAscii($str, $replace=array(), $delimiter='-') {
    if( !empty($replace) ) {
       $str = str_replace((array)$replace, ' ', $str);
    }
@@ -14,7 +20,7 @@ function toAscii($str, $replace=array(), $delimiter='-') {
 }
 
 //If internet access
-function is_connected() {
+   public function is_connected() {
     $connected = @fsockopen("www.example.com", 80); 
     if ($connected){
         $is_conn = true; 
@@ -27,7 +33,7 @@ function is_connected() {
 
 //IF remote file exists
 //if(remoteFileExists("https://example.com/file.zip")) {
-function remoteFileExists($url) {
+   public function remoteFileExists($url) {
     $curl = curl_init($url);
     curl_setopt($curl, CURLOPT_NOBODY, true);
     $result = curl_exec($curl);
@@ -42,7 +48,7 @@ function remoteFileExists($url) {
     return $ret;
 }
 
-function obfuscate_email($email)
+   public function obfuscate_email($email)
 {
     $em   = explode("@",$email);
     $name = implode(array_slice($em, 0, count($em)-1), '@');
@@ -50,7 +56,7 @@ function obfuscate_email($email)
 
     return substr($name,0, $len) . str_repeat('*', $len) . "@" . end($em);
 }
-function folderSize($dir){
+   public function folderSize($dir){
 $count_size = 0;
 $count = 0;
 $dir_array = scandir($dir);
@@ -68,7 +74,7 @@ $dir_array = scandir($dir);
 return $count_size;
 }
 
-function formatNumbers($numbers, $precision = 1) { 
+   public function formatNumbers($numbers, $precision = 1) { 
     $units = array('', 'K', 'M'); 
     if($numbers>999) {
       $numbers = max($numbers, 0); 
@@ -82,7 +88,7 @@ function formatNumbers($numbers, $precision = 1) {
       return $numbers;
    }
 } 
-function formatBytes($bytes, $precision = 2) {
+   public function formatBytes($bytes, $precision = 2) {
     $units = array('B', 'KB', 'MB', 'GB', 'TB'); 
 
     $bytes = max($bytes, 0); 
@@ -93,7 +99,7 @@ function formatBytes($bytes, $precision = 2) {
 
     return round($bytes, $precision) . ' ' . $units[$pow]; 
 } 
-function array2str($array) {
+   public function array2str($array) {
    $str="";
    foreach($array as $k=>$i){
       if(is_array($i)){
@@ -106,7 +112,7 @@ function array2str($array) {
    }
    return $str;
 }
-function color_inverse($color){
+   public function color_inverse($color){
     $color = str_replace('#', '', $color);
     if (strlen($color) != 6){ return '000000'; }
     $rgb = '';
@@ -118,7 +124,7 @@ function color_inverse($color){
     return '#'.$rgb;
 }
 
-function get_dir_size($directory){
+   public function get_dir_size($directory){
    global $userDirectorySize;
     $userDirectorySize = 0;
     $files= glob($directory.'/*');
@@ -137,7 +143,7 @@ function get_dir_size($directory){
     return $userDirectorySize;
     $userDirectorySize="";
 } 
-function Zip($source, $destination) {
+   public function Zip($source, $destination) {
     if (!extension_loaded('zip') || !file_exists($source)) {
         return false;
     }
@@ -174,7 +180,7 @@ function Zip($source, $destination) {
 
     return $zip->close();
 }
-function obfuscate_email($email)
+   public function obfuscate_email($email)
 {
     $em   = explode("@",$email);
     $name = implode(array_slice($em, 0, count($em)-1), '@');
@@ -182,7 +188,7 @@ function obfuscate_email($email)
 
     return substr($name,0, $len) . str_repeat('*', $len) . "@" . end($em);
 }
-function folderSize($dir){
+   public function folderSize($dir){
 $count_size = 0;
 $count = 0;
 $dir_array = scandir($dir);
@@ -198,6 +204,7 @@ $dir_array = scandir($dir);
    }
  }
 return $count_size;
+}
 }
 
 ?>

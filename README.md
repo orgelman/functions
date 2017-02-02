@@ -22,3 +22,8 @@ Composer
 }
 
 ```
+
+## Version
+```
+<major>.<minor>.<patch>
+```

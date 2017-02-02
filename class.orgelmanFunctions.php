@@ -25,15 +25,18 @@ class orgelmanFunctions {
    public function getDomain($root="") {
       $this->server                 = new stdClass();
       $this->server->root           = "";
-      
       $this->server->domain         = "";
+      $this->server->full           = "";
+      
       $this->server->protocol       = "";
       $this->server->port           = "";
-      $this->server->host           = "";
       $this->server->IP             = "";
       $this->server->server         = "";
       $this->server->URI            = "";
       $this->server->dir            = "";
+      $this->server->subDomain      = array();
+      $this->server->subFolder      = array();
+      $this->server->get            = array();
       
       if($root=="") {
          if($this->root!="") {
@@ -49,19 +52,39 @@ class orgelmanFunctions {
          $this->error("No root directory found",  E_USER_ERROR);
       }
       
+      if(isset($_GET)) {
+         foreach($_GET as $key => $get) {
+            $new = explode("?",$get);
+            if(count($new)>1) {
+               foreach($new as $nget) {
+                  if (strpos($nget, '=') !== false) {
+                     $nkey = explode("=",$nget);
+                     $this->server->get[$nkey[0]] = $nkey[1];
+                  } else {
+                     $this->server->get[$key] = $nget;
+                  }
+               }
+            } else {
+               $this->server->get[$key] = $get;
+            }
+         }
+      }
       
       if((isset($_SERVER['SERVER_PROTOCOL'])) && (isset($_SERVER['SERVER_PORT'])) && (isset($_SERVER['SERVER_NAME']))) {
          $ssl                       = ( ! empty( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] == 'on' );
          $sp                        = strtolower( $_SERVER['SERVER_PROTOCOL'] );
          $this->server->protocol    = substr( $sp, 0, strpos( $sp, '/' ) ) . ( ( $ssl ) ? 's' : '' );
          $this->server->port        = $_SERVER['SERVER_PORT'];
-         $port                      = ( ( ! $ssl && $_SERVER['SERVER_PORT']=='80' ) || ( $ssl && $_SERVER['SERVER_PORT']=='443' ) ) ? '' : ':'.$_SERVER['SERVER_PORT'];
-         $this->server->host        = $_SERVER['SERVER_NAME'] . $port;
+         $port                      = ( ( ! $ssl && $_SERVER['SERVER_PORT']=='80' ) || ( $ssl && $_SERVER['SERVER_PORT']=='443' ) || ($_SERVER['SERVER_PORT']=='80') ) ? '' : ':'.$_SERVER['SERVER_PORT'];
          $this->server->dir         = trim(str_replace($_SERVER["DOCUMENT_ROOT"],"",dirname(debug_backtrace()[0]["file"])),"/");
          
+         foreach(explode("/",$this->server->dir) as $dir) {
+            $this->server->subFolder[] = $dir;
+         }
 
          $domain                    = explode(":",preg_replace("/^www\.(.+\.)/i", "$1", $_SERVER["HTTP_HOST"]),2);
          $server                    = parse_url($domain[0]);
+         
          if(isset($server['host'])) {
             $host                   = strtolower($server['host']);
          } else if(isset($server['path'])) {
@@ -76,6 +99,21 @@ class orgelmanFunctions {
          } else {
             $this->server->IP       = gethostbyname($_SERVER['SERVER_NAME']);
             $this->server->server   = $host_names[count($host_names)-2] . "." . $host_names[count($host_names)-1];
+            unset($host_names[count($host_names)-1]);
+            unset($host_names[count($host_names)-1]);
+            $arr = array();
+            
+            foreach($host_names as $host){
+               $arr[] = $host;
+            }
+            if(!empty($arr)) {
+               foreach($arr as $subdom) {
+                  $this->server->subDomain[] = $subdom;
+               }
+            }
+         }
+         if($this->server->subDomain[0] == $this->server->subFolder[0]) {
+            unset($this->server->subFolder[0]);
          }
          
          $this->server->URI         = ltrim($_SERVER["REQUEST_URI"],"/");
@@ -84,11 +122,41 @@ class orgelmanFunctions {
             
          } 
          
-         $this->server->domain      = trim($this->server->protocol."://".$domain[0].$port."/".$this->server->dir,"/").DIRECTORY_SEPARATOR;
+         $domain                    = $this->server->protocol."://";
+         foreach($this->server->subDomain as $dom) {
+            $domain                .= $dom.".";
+         }
+         $domain                   .= $this->server->server.$port."/";
+         $this->server->dir         = "";
+         foreach($this->server->subFolder as $dom) {
+            $domain                .= $dom."/";
+            $this->server->dir     .= $dom."/";
+         }
+         $this->server->domain      = $domain;
+         
+         $q = "";
+         if(!empty($this->server->get)) { 
+            $q = "?";
+            $i=0;
+            foreach($this->server->get as $key => $get) {
+               if($i!=0) {
+                  $q .= "&";
+               }
+               $q .= $key."=".$get;
+               $i++;
+            }
+         }
+         echo $q;
+         
       }
       
+      $uri = substr($this->server->URI, 0, strpos($this->server->URI, "?"));
+      if(substr($uri, 0, strlen($this->server->dir)) == $this->server->dir) {
+         $uri = substr($uri, strlen($this->server->dir));
+      } 
+      
       $this->server->domain         = trim($this->server->domain."/","/")."/";
-      $this->server->full           = $this->server->domain.$this->server->URI;
+      $this->server->full           = $this->server->domain.$uri.$q;
       
       return $this->server;
    }

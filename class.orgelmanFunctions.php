@@ -1,16 +1,12 @@
 <?php 
 class orgelmanFunctions {
-   public  $version                 = "dev-master";
-   private $root                    = "";
+   public  $version                 = "0.1.0";
    
+   private $root                    = "";
+   private $path                    = "";
    public function __construct($root="") {
-      $this->root                   = $root;
-      
+      $this->root = $root;
    }
-   public function __destruct() {
-      
-   }
-   // Trigger an error
    private function error($message, $level=E_USER_NOTICE) { 
       $caller = debug_backtrace()[0];
 
@@ -21,8 +17,13 @@ class orgelmanFunctions {
       } 
    }
    
-   // Get domain, root, port and so on
-   public function getDomain($root="") {
+   public function setRoot($root) {
+      $this->root                   = $root;
+   }
+   public function setPath($path) {
+      $this->path                   = $path;
+   }
+   public function getDomain($root="",$path="") {
       $this->server                 = new stdClass();
       $this->server->root           = "";
       $this->server->domain         = "";
@@ -47,28 +48,24 @@ class orgelmanFunctions {
       } else {
          $root = $root.DIRECTORY_SEPARATOR;
       }
+      if($path=="") {
+         if($this->path!="") {
+            $path = $this->path;
+         } else {
+            if($this->server->dir!="") {
+               $path = $this->server->dir."/";
+            }
+         }
+      } else {
+         $path = $path."/";
+      }
+      $path = trim($path,"/")."/";
+      
       $this->server->root = trim(str_replace(array("/","\\"),DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR.trim($root,"/").DIRECTORY_SEPARATOR));
       if(!file_exists($this->server->root)) {
          $this->error("No root directory found",  E_USER_ERROR);
       }
       
-      if(isset($_GET)) {
-         foreach($_GET as $key => $get) {
-            $new = explode("?",$get);
-            if(count($new)>1) {
-               foreach($new as $nget) {
-                  if (strpos($nget, '=') !== false) {
-                     $nkey = explode("=",$nget);
-                     $this->server->get[$nkey[0]] = $nkey[1];
-                  } else {
-                     $this->server->get[$key] = $nget;
-                  }
-               }
-            } else {
-               $this->server->get[$key] = $get;
-            }
-         }
-      }
       
       if((isset($_SERVER['SERVER_PROTOCOL'])) && (isset($_SERVER['SERVER_PORT'])) && (isset($_SERVER['SERVER_NAME']))) {
          $ssl                       = ( ! empty( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] == 'on' );
@@ -76,7 +73,13 @@ class orgelmanFunctions {
          $this->server->protocol    = substr( $sp, 0, strpos( $sp, '/' ) ) . ( ( $ssl ) ? 's' : '' );
          $this->server->port        = $_SERVER['SERVER_PORT'];
          $port                      = ( ( ! $ssl && $_SERVER['SERVER_PORT']=='80' ) || ( $ssl && $_SERVER['SERVER_PORT']=='443' ) || ($_SERVER['SERVER_PORT']=='80') ) ? '' : ':'.$_SERVER['SERVER_PORT'];
-         $this->server->dir         = trim(str_replace($_SERVER["DOCUMENT_ROOT"],"",dirname(debug_backtrace()[0]["file"])),"/");
+         if($path!="") {
+            $this->server->dir      = trim(str_replace($_SERVER["DOCUMENT_ROOT"],"",dirname(debug_backtrace()[0]["file"])),"/");
+         } else {
+            $this->server->dir      = $path;
+         }
+         
+        
          
          foreach(explode("/",$this->server->dir) as $dir) {
             $this->server->subFolder[] = $dir;
@@ -112,27 +115,73 @@ class orgelmanFunctions {
                }
             }
          }
-         if($this->server->subDomain[0] == $this->server->subFolder[0]) {
-            unset($this->server->subFolder[0]);
+         if((isset($this->server->subDomain[0])) && (isset($this->server->subFolder[0]))) {
+            if($this->server->subDomain[0] == $this->server->subFolder[0]) {
+               unset($this->server->subFolder[0]);
+            }
          }
          
          $this->server->URI         = ltrim($_SERVER["REQUEST_URI"],"/");
+         
          if (substr($this->server->URI, 0, strlen($this->server->dir)) == $this->server->dir) {
             $this->server->URI      = ltrim(substr(trim(trim($_SERVER["REQUEST_URI"],"/")), strlen(trim(trim($this->server->dir,"/")))),"/");
-            
          } 
-         
          $domain                    = $this->server->protocol."://";
          foreach($this->server->subDomain as $dom) {
             $domain                .= $dom.".";
          }
-         $domain                   .= $this->server->server.$port."/";
-         $this->server->dir         = "";
-         foreach($this->server->subFolder as $dom) {
-            $domain                .= $dom."/";
-            $this->server->dir     .= $dom."/";
+         if($this->server->server=="") {
+            $domain                .= $this->server->IP.$port."/";
+         } else {
+            $domain                .= $this->server->server.$port."/";
          }
          $this->server->domain      = $domain;
+         
+         if($path!="") {
+            $this->server->dir         = $path;
+         } else {
+            $this->server->dir         = "";
+            foreach($this->server->subFolder as $dom) {
+               $this->server->dir     .= $dom."/";
+            }
+         }
+         
+         
+          
+      if(isset($_SERVER["REQUEST_URI"])) {
+         if (substr(trim($_SERVER["REQUEST_URI"],"/"), 0, strlen($this->server->dir)) == trim($this->server->dir,"/")) {
+            $_SERVER["REQUEST_URI"]      = ltrim(substr(trim(trim($_SERVER["REQUEST_URI"],"/")), strlen(trim(trim($this->server->dir,"/")))),"/");
+         } 
+         if(strpos($_SERVER["REQUEST_URI"], '?') !== false) {
+         
+         $qust = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], "?") + 1);
+         $quest = explode("?",$qust);
+         $qust =  implode ("&",$quest);
+         $qust = explode("&",$qust);
+         
+         foreach($qust as $get) {
+            $gets = explode("=",$get);
+            $key  = $gets[0];
+            $get  = $gets[1];
+            $new = explode("?",$get);
+            if(count($new)>1) {
+               foreach($new as $nget) {
+                  if (strpos($nget, '=') !== false) {
+                     $nkey = explode("=",$nget);
+                     $this->server->get[$nkey[0]] = $nkey[1];
+                     $_GET[$nkey[0]] = $nkey[1];
+                  } else {
+                     $this->server->get[$key] = $nget;
+                     $_GET[$key] = $nget;
+                  }
+               }
+            } else {
+               $this->server->get[$key] = $get;
+               $_GET[$key] = $get;
+            }
+         }
+         }
+      }
          
          $q = "";
          if(!empty($this->server->get)) { 
@@ -146,20 +195,29 @@ class orgelmanFunctions {
                $i++;
             }
          }
-         echo $q;
-         
       }
+      $uri = $this->server->URI;
+      if(trim(trim($this->server->dir,"/")) !="") {
+         if(substr($this->server->URI, 0, strlen($this->server->dir)) === $this->server->dir) {
+            $uri = substr($this->server->URI, strlen($this->server->dir));
+         }
+      }
+      if(strpos($this->server->URI, '?') !== false) {
+         $uri = substr($uri, 0, strpos($uri, "?"));
+      }
+      $this->root                   = $this->server->root;
+      $this->path                   = $this->server->dir;
       
-      $uri = substr($this->server->URI, 0, strpos($this->server->URI, "?"));
-      if(substr($uri, 0, strlen($this->server->dir)) == $this->server->dir) {
-         $uri = substr($uri, strlen($this->server->dir));
-      } 
+      $this->server->URI            = $uri.$q;
       
-      $this->server->domain         = trim($this->server->domain."/","/")."/";
+      $this->server->domain         = trim($this->server->domain.$this->server->dir,"/")."/";
       $this->server->full           = $this->server->domain.$uri.$q;
       
       return $this->server;
    }
+
+   
+   
    
    // Clean string URL
    public function toAscii($str, $replace=array(), $delimiter='-') {

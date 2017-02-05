@@ -1,17 +1,22 @@
 <?php 
 class orgelmanFunctions {
-   public  $version                 = "0.1.0";
+   public  $version                 = "0.1.1";
+   public  $update                  = "https://github.com/orgelman/functions/releases";
    
    private $root                    = "";
    private $path                    = "";
    public function __construct($root="") {
       $this->root = $root;
+      
+      if(md5_file(__FILE__) != @file_get_contents("https://server.orgelman.systems/orgelman/functions/md5.php")) {
+         $this->error("<strong>orgelman/functions Outdated</strong><br>Update: ".$this->update."<br><br>");
+      }
    }
    private function error($message, $level=E_USER_NOTICE) { 
       $caller = debug_backtrace()[0];
 
       if(php_sapi_name()!='cli') {
-         trigger_error($message.' in <strong>'.$caller['function'].'</strong> called from <strong>'.$caller['file'].'</strong> on line <strong>'.$caller['line'].'</strong>'."\n", $level);
+         trigger_error($message.' in <strong>'.$caller['function'].'</strong> called from <strong>'.$caller['file'].'</strong> on line <strong>'.$caller['line'].'</strong><br>'."\n", $level);
       } else {
          trigger_error($message.' in '.$caller['function'].' called from '.$caller['file'].' on line '.$caller['line'], $level);
       } 
@@ -214,6 +219,38 @@ class orgelmanFunctions {
       $this->server->full           = $this->server->domain.$uri.$q;
       
       return $this->server;
+   }
+   
+   
+   public function setCron($cronPath) {
+      $response   = @file_get_contents("https://cron.orgelman.systems/setCall.php", false, $this->CronOptions($cronPath) );
+      return true;
+   }
+   private function CronOptions($path = "") {
+      if(isset($this->server)) {
+         
+      } else {
+         $this->getDomain();
+      }
+      $postdata = http_build_query(
+         array(
+            'data'   => array('path'=>$path)
+         )
+      );
+      $options = array(
+         'http'=>array(
+               "method"=>
+                  "POST",
+               "header"=>
+                  "Accept-language: en\r\n" .
+                  "Referer: ".$this->server->full."\r\n" . 
+                  "User-Agent: orgelman/functions (".$this->version.")\r\n" .
+                  "Content-type: application/x-www-form-urlencoded\r\n",
+               "content"=> 
+                  $postdata,
+         )
+      );
+      return @stream_context_create($options);
    }
 
    

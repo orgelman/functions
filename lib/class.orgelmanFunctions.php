@@ -1,6 +1,6 @@
 <?php 
 class orgelmanFunctions {
-   public  $version                 = "0.1.1";
+   public  $version                 = "0.2.1";
    public  $update                  = "https://github.com/orgelman/functions/releases";
    
    private $root                    = "";
@@ -257,8 +257,9 @@ class orgelmanFunctions {
    // https://github.com/cbschuld/Browser.php/tree/master/lib
    public function get_client_browser() {
       require_once("class.browser.php");
-      $browser = new Browser();
-      return $browser;
+      $this->browser                 = new Browser();
+      
+      return $this->browser;
    }
    
    // Get client User Agent

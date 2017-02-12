@@ -254,10 +254,11 @@ class orgelmanFunctions {
    }
 
    // Get client browser info
+   // https://github.com/cbschuld/Browser.php/tree/master/lib
    public function get_client_browser() {
       require_once("class.browser.php");
       $browser = new Browser();
-      print_r($browser);
+      return $browser;
    }
    
    // Get client User Agent

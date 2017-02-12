@@ -253,8 +253,49 @@ class orgelmanFunctions {
       return @stream_context_create($options);
    }
 
+   // Get client browser info
+   public function get_client_browser() {
+      $browser = new Browser();
+      print_r($browser);
+      if( $browser->getBrowser() == Browser::BROWSER_FIREFOX && $browser->getVersion() >= 2 ) {
+         echo 'You have FireFox version 2 or greater';
+      }
+   }
    
+   // Get client User Agent
+   public function get_client_ua() {
+      $ua = 'UNKNOWN';
+      if((isset($_SERVER['HTTP_USER_AGENT'])) && ($_SERVER['HTTP_USER_AGENT']!="")) {
+         $ua = $_SERVER['HTTP_USER_AGENT'];
+      }
+      return $ua;
+   }
    
+   // Get client IP
+   public function get_client_ip() {
+      $ipaddress = '';
+      if (getenv('HTTP_CLIENT_IP'))
+         $ipaddress = getenv('HTTP_CLIENT_IP');
+      else if(getenv('HTTP_X_FORWARDED_FOR'))
+         $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
+      else if(getenv('HTTP_X_FORWARDED'))
+         $ipaddress = getenv('HTTP_X_FORWARDED');
+      else if(getenv('HTTP_FORWARDED_FOR'))
+         $ipaddress = getenv('HTTP_FORWARDED_FOR');
+      else if(getenv('HTTP_FORWARDED'))
+         $ipaddress = getenv('HTTP_FORWARDED');
+      else if(getenv('REMOTE_ADDR'))
+         $ipaddress = getenv('REMOTE_ADDR');
+      else
+         $ipaddress = 'UNKNOWN';
+      
+      if (!filter_var($ipaddress, FILTER_VALIDATE_IP) === false) {
+      } else {
+         $ipaddress = 'UNKNOWN';
+      }
+      
+      return $ipaddress;
+   }
    
    // Clean string URL
    public function toAscii($str, $replace=array(), $delimiter='-') {

@@ -18,7 +18,8 @@
     },
     "autoload": {
         "classmap": [
-            "class.orgelmanFunctions.php"
+            "lib/class.orgelmanFunctions.php",
+            "lib/class.browser.php"
         ]
     },
     "license": "LGPL-2.1"

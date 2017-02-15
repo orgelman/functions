@@ -71,7 +71,7 @@ class orgelmanFunctions {
          $this->error("No root directory found",  E_USER_ERROR);
       }
       
-      
+      $q = "";
       if((isset($_SERVER['SERVER_PROTOCOL'])) && (isset($_SERVER['SERVER_PORT'])) && (isset($_SERVER['SERVER_NAME']))) {
          $ssl                       = ( ! empty( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] == 'on' );
          $sp                        = strtolower( $_SERVER['SERVER_PROTOCOL'] );
@@ -149,46 +149,40 @@ class orgelmanFunctions {
             foreach($this->server->subFolder as $dom) {
                $this->server->dir     .= $dom."/";
             }
-         }
-         
-         
-          
-      if(isset($_SERVER["REQUEST_URI"])) {
-         if (substr(trim($_SERVER["REQUEST_URI"],"/"), 0, strlen($this->server->dir)) == trim($this->server->dir,"/")) {
-            $_SERVER["REQUEST_URI"]      = ltrim(substr(trim(trim($_SERVER["REQUEST_URI"],"/")), strlen(trim(trim($this->server->dir,"/")))),"/");
          } 
-         if(strpos($_SERVER["REQUEST_URI"], '?') !== false) {
+         if(isset($_SERVER["REQUEST_URI"])) {
+            if (substr(trim($_SERVER["REQUEST_URI"],"/"), 0, strlen($this->server->dir)) == trim($this->server->dir,"/")) {
+               $_SERVER["REQUEST_URI"]      = ltrim(substr(trim(trim($_SERVER["REQUEST_URI"],"/")), strlen(trim(trim($this->server->dir,"/")))),"/");
+            } 
+            if(strpos($_SERVER["REQUEST_URI"], '?') !== false) {
+               $qust = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], "?") + 1);
+               $quest = explode("?",$qust);
+               $qust =  implode ("&",$quest);
+               $qust = explode("&",$qust);
          
-         $qust = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], "?") + 1);
-         $quest = explode("?",$qust);
-         $qust =  implode ("&",$quest);
-         $qust = explode("&",$qust);
-         
-         foreach($qust as $get) {
-            $gets = explode("=",$get);
-            $key  = $gets[0];
-            $get  = $gets[1];
-            $new = explode("?",$get);
-            if(count($new)>1) {
-               foreach($new as $nget) {
-                  if (strpos($nget, '=') !== false) {
-                     $nkey = explode("=",$nget);
-                     $this->server->get[$nkey[0]] = $nkey[1];
-                     $_GET[$nkey[0]] = $nkey[1];
+               foreach($qust as $get) {
+                  $gets = explode("=",$get);
+                  $key  = $gets[0];
+                  $get  = $gets[1];
+                  $new = explode("?",$get);
+                  if(count($new)>1) {
+                     foreach($new as $nget) {
+                        if (strpos($nget, '=') !== false) {
+                           $nkey = explode("=",$nget);
+                           $this->server->get[$nkey[0]] = $nkey[1];
+                           $_GET[$nkey[0]] = $nkey[1];
+                        } else {
+                           $this->server->get[$key] = $nget;
+                           $_GET[$key] = $nget;
+                        }
+                     }
                   } else {
-                     $this->server->get[$key] = $nget;
-                     $_GET[$key] = $nget;
+                     $this->server->get[$key] = $get;
+                     $_GET[$key] = $get;
                   }
                }
-            } else {
-               $this->server->get[$key] = $get;
-               $_GET[$key] = $get;
             }
          }
-         }
-      }
-         
-         $q = "";
          if(!empty($this->server->get)) { 
             $q = "?";
             $i=0;
@@ -220,6 +214,59 @@ class orgelmanFunctions {
       
       return $this->server;
    }
+   
+   
+   public function botTrap($input,$subject="") {
+      $str              = '';
+      
+      if (!filter_var($input, FILTER_VALIDATE_EMAIL) === false) {
+         $id               = $this->toAscii("e_".rand(0,9999999)."_".uniqid()); 
+         $email            = strtolower($input);
+         $parts["prefix"]  = substr($email, 0,strrpos($email, '@'));
+         $parts["domain"]  = substr(substr(strrchr($email, '@'), 1), 0 , (strrpos(substr(strrchr($email, '@'), 1), ".")));
+         $parts["top"]     = substr(strrchr($email, '.'), 1);
+         if($subject!="") {
+            $subject = "?subject=".addslashes(urlencode($subject));
+         }
+         $str .= '<span class="spamfreeemail">'."\n"; 
+         $str .= '   <i class="fa fa-at"></i>&#32;'."\n";
+         $str .= '   <span class="'.$id.'">'.$parts["prefix"]." [ at ] ".$parts["domain"]." [ dot ] ".$parts["top"].'</span>'."\n";
+         $str .= '   <script>'."\n";
+         $str .= '      console.log("Emaillink");'."\n";
+         $str .= '      var pre = "'.$parts["prefix"].'";'."\n";
+         $str .= '      var dom = "'.$parts["domain"].'";'."\n";
+         $str .= '      var linktext = pre + "&#64;" + dom + "." + "'.$parts["top"].'";'."\n";
+         $str .= '      var linktextP = pre;'."\n";
+         $str .= '      var linktextD = dom + "." + "'.$parts["top"].'";'."\n";
+         $str .= '      $( ".'.$id.'"   ).html("<a class=\'mail\' mail=" + linktextP + " dom=" + linktextD + "><" + "/a>");'."\n";
+         $str .= '      $( ".'.$id.' a" ).each(function(){var t=$(this).attr("mail")+"&#64;"+$(this).attr("dom");$(this).html(t)});'."\n";
+         $str .= '      $( ".'.$id.' a" ).click(function(e){e.preventDefault();var t="mail"+"to:"+$(this).attr("mail")+\'@\'+$(this).attr("dom")+"'.$subject.'";if($(this).attr("mail")){location.href=t}});'."\n";
+         $str .= '   </script>'."\n";   
+         $str .= '   <noscript>'."\n";
+         $str .= '      <a href="http://enable-javascript.com/">Javascript</a>'."\n";
+         $str .= '   </noscript>'."\n";
+         $str .= '</span>'."\n";
+      } else {
+         $id               = $this->toAscii("p_".rand(0,9999999)."_".uniqid()); 
+         $phone            = str_replace(array(" ","-"),array("",""),addslashes(strtolower($input)));
+         $str .= '<span class="spamfreephone">'."\n"; 
+         $str .= '   <i class="fa fa-phone"></i>&#32;'."\n";
+         $str .= '   <span class="'.$id.'">'.$phone.'</span>'."\n";
+         $str .= '   <script>'."\n";
+         $str .= '      console.log("Phonelink");'."\n";
+         $str .= '      var phone = "'.$phone.'";'."\n";
+         $str .= '      $( ".'.$id.'"   ).html("<a class=\'phone\' phone=" + phone + "><" + "/a>");'."\n";
+         $str .= '      $( ".'.$id.' a" ).each(function(){var t=phone;$(this).html(t)});'."\n";
+         $str .= '      $( ".'.$id.' a" ).click(function(e){e.preventDefault();var t="tel:"+$(this).attr("phone");if($(this).attr("phone")){location.href=t}});'."\n";
+         $str .= '   </script>'."\n";   
+         $str .= '   <noscript>'."\n";
+         $str .= '      <a href="http://enable-javascript.com/">Javascript</a>'."\n";
+         $str .= '   </noscript>'."\n";
+         $str .= '</span>'."\n";
+      }
+      return $str;
+   }
+   
    
    
    public function setCron($cronPath) {
@@ -424,6 +471,30 @@ class orgelmanFunctions {
          $rgb .= (strlen($c) < 2) ? '0'.$c : $c;
       }
       return '#'.$rgb;
+   }
+   
+   // Adjust color
+   function adjustBrightness($hex, $steps) {
+      // Steps should be between -255 and 255. Negative = darker, positive = lighter
+      $steps = max(-255, min(255, $steps));
+
+      // Normalize into a six character long hex string
+      $hex = str_replace('#', '', $hex);
+      if (strlen($hex) == 3) {
+         $hex = str_repeat(substr($hex,0,1), 2).str_repeat(substr($hex,1,1), 2).str_repeat(substr($hex,2,1), 2);
+      }
+
+      // Split into three parts: R, G and B
+      $color_parts = str_split($hex, 2);
+      $return = '#';
+
+      foreach ($color_parts as $color) {
+         $color   = hexdec($color); // Convert to decimal
+         $color   = max(0,min(255,$color + $steps)); // Adjust color
+         $return .= str_pad(dechex($color), 2, '0', STR_PAD_LEFT); // Make two char hex code
+      }
+
+      return $return;
    }
 
    // Zip directory

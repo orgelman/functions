@@ -1,6 +1,6 @@
 <?php 
 class orgelmanFunctions {
-   public  $version                 = "0.2.1";
+   public  $version                 = "0.2.2";
    public  $update                  = "https://github.com/orgelman/functions/releases";
    
    private $root                    = "";

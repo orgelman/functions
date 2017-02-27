@@ -1,24 +1,28 @@
 <?php 
 class orgelmanFunctions {
-   public  $version                 = "0.2.2";
-   public  $update                  = "https://github.com/orgelman/functions/releases";
+   private $version                 = "0.2.3";
+   private $update                  = "https://github.com/orgelman/functions/releases";
    
    private $root                    = "";
    private $path                    = "";
    public function __construct($root="") {
       $this->root = $root;
-      
+   }
+   public function verify() {
       if(md5_file(__FILE__) != @file_get_contents("https://server.orgelman.systems/orgelman/functions/md5.php")) {
          $this->error("<strong>orgelman/functions Outdated</strong><br>Update: ".$this->update."<br><br>");
+         return false;
       }
+      return true;
    }
+   
    private function error($message, $level=E_USER_NOTICE) { 
       $caller = debug_backtrace()[0];
 
       if(php_sapi_name()!='cli') {
          trigger_error($message.' in <strong>'.$caller['function'].'</strong> called from <strong>'.$caller['file'].'</strong> on line <strong>'.$caller['line'].'</strong><br>'."\n", $level);
       } else {
-         trigger_error($message.' in '.$caller['function'].' called from '.$caller['file'].' on line '.$caller['line'], $level);
+         trigger_error(strip_tags($message.' in '.$caller['function'].' called from '.$caller['file'].' on line '.$caller['line'], $level));
       } 
    }
    
@@ -249,7 +253,7 @@ class orgelmanFunctions {
          $str .= '               var linktext = pre + "&#64;" + dom + "." + "'.$parts["top"].'";'."\n";
          $str .= '               var linktextP = pre;'."\n";
          $str .= '               var linktextD = dom + "." + "'.$parts["top"].'";'."\n";
-         $str .= '               $( ".'.$id.'"   ).html("<a class=\'mail\' mail=" + linktextP + " dom=" + linktextD + "><" + "/a>");'."\n";
+         $str .= '               $( ".'.$id.'"   ).html("<"+"a class=\'mail\' mail=" + linktextP + " dom=" + linktextD + "><" + "/a>");'."\n";
          $str .= '               $( ".'.$id.' a" ).each(function(){var t=$(this).attr("mail")+"&#64;"+$(this).attr("dom");$(this).html(t)});'."\n";
          $str .= '               $( ".'.$id.' a" ).click(function(e){e.preventDefault();var t="mail"+"to:"+$(this).attr("mail")+\'@\'+$(this).attr("dom")+"'.$subject.'";if($(this).attr("mail")){location.href=t}});'."\n";
          $str .= '            });'."\n";
@@ -280,7 +284,7 @@ class orgelmanFunctions {
          $str .= '            $(function() {'."\n";
          $str .= '               console.log("Phonelink");'."\n";
          $str .= '               var phone = "'.$phone.'";'."\n";
-         $str .= '               $( ".'.$id.'"   ).html("<a class=\'phone\' phone=" + phone + "><" + "/a>");'."\n";
+         $str .= '               $( ".'.$id.'"   ).html("<"+"a class=\'phone\' phone=" + phone + "><" + "/a>");'."\n";
          $str .= '               $( ".'.$id.' a" ).each(function(){var t=phone;$(this).html(t)});'."\n";
          $str .= '               $( ".'.$id.' a" ).click(function(e){e.preventDefault();var t="tel:"+$(this).attr("phone");if($(this).attr("phone")){location.href=t}});'."\n";
          $str .= '            });'."\n";

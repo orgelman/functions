@@ -1,6 +1,19 @@
-<?php
-include("../class.orgelmanFunctions.php");
+<?php 
+/**
+ * @package orgelman/functions
+ * @link    https://github.com/orgelman/functions/
+ * @author  Tobias Jonson <git@orgelman.systmes>
+ * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ */
+
+require_once("../autoload.php");
 
 $_Orgelman = new orgelmanFunctions();
 
-echo $_Orgelman->toAscii("Hello World");
+if($_Orgelman->Verify) {
+   echo "1";
+} else {
+   die("Outdated");
+}
+
+echo $_Orgelman->toAscii("It works!");

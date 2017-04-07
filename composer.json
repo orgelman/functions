@@ -18,7 +18,7 @@
     },
     "autoload": {
         "classmap": [
-            "autoload.php"
+            "autoloac.src.php"
         ]
     },
     "license": "LGPL-2.1"

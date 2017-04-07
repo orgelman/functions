@@ -7,7 +7,7 @@
     "authors": [
         {
             "name": "Tobias Jonson",
-            "email": "support@orgelman.systems"
+            "email": "git@orgelman.systems"
         }
     ],
     "require": {
@@ -18,8 +18,7 @@
     },
     "autoload": {
         "classmap": [
-            "lib/class.orgelmanFunctions.php",
-            "lib/class.browser.php"
+            "autoload.php"
         ]
     },
     "license": "LGPL-2.1"

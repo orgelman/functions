@@ -1,16 +1,36 @@
 <?php 
+/**
+ * @package orgelman/functions
+ * @link    https://github.com/orgelman/functions/
+ * @author  Tobias Jonson <git@orgelman.systmes>
+ * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ */
+
+if(get_included_files()[0]==__FILE__){header("HTTP/1.1 403 Forbidden");die('<h1 style="font-family:arial;">Error 403: Forbidden</h1>');} 
+
 class orgelmanFunctions {
-   private $version                 = "0.2.3";
+   private $version                 = "0.3.0";
    private $update                  = "https://github.com/orgelman/functions/releases";
    
    private $root                    = "";
    private $path                    = "";
    public function __construct($root="") {
-      $this->root = $root;
+      if($root!="") {
+         $this->root = $root;
+      }
+      $this->client->console = true;
+      if(php_sapi_name()!='cli') {
+         $this->client->console = false;
+      }
    }
    public function verify() {
       if(md5_file(__FILE__) != @file_get_contents("https://server.orgelman.systems/orgelman/functions/md5.php")) {
-         $this->error("<strong>orgelman/functions Outdated</strong><br>Update: ".$this->update."<br><br>");
+         
+         if(!$this->client->console) {
+            $this->error("<strong>orgelman/functions Outdated</strong><br>Update: ".$this->update."<br><br>");
+         } else {
+            $this->error("orgelman/functions Outdated\nUpdate: ".$this->update);
+         }
          return false;
       }
       return true;
@@ -19,7 +39,7 @@ class orgelmanFunctions {
    private function error($message, $level=E_USER_NOTICE) { 
       $caller = debug_backtrace()[0];
 
-      if(php_sapi_name()!='cli') {
+      if(!$this->client->console) {
          trigger_error($message.' in <strong>'.$caller['function'].'</strong> called from <strong>'.$caller['file'].'</strong> on line <strong>'.$caller['line'].'</strong><br>'."\n", $level);
       } else {
          trigger_error(strip_tags($message.' in '.$caller['function'].' called from '.$caller['file'].' on line '.$caller['line'], $level));
@@ -32,7 +52,8 @@ class orgelmanFunctions {
    public function setPath($path) {
       $this->path                   = $path;
    }
-   public function getDomain($root="",$path="") {
+   
+   public function get_domain($root="",$path="") {
       $this->server                 = new stdClass();
       $this->server->root           = "";
       $this->server->domain         = "";
@@ -47,6 +68,7 @@ class orgelmanFunctions {
       $this->server->subDomain      = array();
       $this->server->subFolder      = array();
       $this->server->get            = array();
+      $this->server->post           = array();
       
       if($root=="") {
          if($this->root!="") {
@@ -57,6 +79,7 @@ class orgelmanFunctions {
       } else {
          $root = $root.DIRECTORY_SEPARATOR;
       }
+      $root = str_replace(array("\\","/"),DIRECTORY_SEPARATOR,$root);
       if($path=="") {
          if($this->path!="") {
             $path = $this->path;
@@ -87,8 +110,6 @@ class orgelmanFunctions {
          } else {
             $this->server->dir      = $path;
          }
-         
-        
          
          foreach(explode("/",$this->server->dir) as $dir) {
             $this->server->subFolder[] = $dir;
@@ -159,16 +180,16 @@ class orgelmanFunctions {
                $_SERVER["REQUEST_URI"]      = ltrim(substr(trim(trim($_SERVER["REQUEST_URI"],"/")), strlen(trim(trim($this->server->dir,"/")))),"/");
             } 
             if(strpos($_SERVER["REQUEST_URI"], '?') !== false) {
-               $qust = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], "?") + 1);
+               $qust  = substr($_SERVER["REQUEST_URI"], strpos($_SERVER["REQUEST_URI"], "?") + 1);
                $quest = explode("?",$qust);
-               $qust =  implode ("&",$quest);
-               $qust = explode("&",$qust);
+               $qust  = implode ("&",$quest);
+               $qust  = explode("&",$qust);
          
                foreach($qust as $get) {
                   $gets = explode("=",$get);
                   $key  = $gets[0];
                   $get  = $gets[1];
-                  $new = explode("?",$get);
+                  $new  = explode("?",$get);
                   if(count($new)>1) {
                      foreach($new as $nget) {
                         if (strpos($nget, '=') !== false) {
@@ -176,13 +197,33 @@ class orgelmanFunctions {
                            $this->server->get[$nkey[0]] = $nkey[1];
                            $_GET[$nkey[0]] = $nkey[1];
                         } else {
+                           $nget = true;
                            $this->server->get[$key] = $nget;
                            $_GET[$key] = $nget;
                         }
                      }
                   } else {
+                     if($get=="") {
+                        $get = true;
+                     }
                      $this->server->get[$key] = $get;
                      $_GET[$key] = $get;
+                  }
+               }
+            }
+            if(!empty($_GET)) {
+               foreach($_GET as $key => $get) {
+                  if(isset($this->server->get[$key])) { 
+                  } else {
+                     $this->server->get[$key] = $get;
+                  }
+               }
+            }
+            if(!empty($_POST)) {
+               foreach($_POST as $key => $post) {
+                  if(isset($this->server->post[$key])) { 
+                  } else {
+                     $this->server->post[$key] = $post;
                   }
                }
             }
@@ -191,6 +232,9 @@ class orgelmanFunctions {
             $q = "?";
             $i=0;
             foreach($this->server->get as $key => $get) {
+               if($get=="") {
+                  $get = true;
+               }
                if($i!=0) {
                   $q .= "&";
                }
@@ -335,10 +379,12 @@ class orgelmanFunctions {
 
    // Get client browser info
    // https://github.com/cbschuld/Browser.php/tree/master/lib
-   public function get_client_browser() {
+   public function get_client() {
       require_once("class.browser.php");
-      $this->browser                 = new Browser();
+      $this->browser = new Browser();
       
+      $this->client->browser = $this->browser->getBrowser();
+      $this->client->platform = $this->browser->getPlatform();
       return $this->browser;
    }
    

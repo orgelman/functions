@@ -6,7 +6,7 @@
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
 
-require_once("../autoload.php");
+require_once("../autoload.src.php");
 
 $_Orgelman = new orgelmanFunctions();
 

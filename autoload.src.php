@@ -9,9 +9,12 @@
 $ds  = DIRECTORY_SEPARATOR;
 $dir = __dir__.$ds;
 if(file_exists($dir."src".$ds."class.orgelmanFunctions.php")) {
-   echo md5_file($dir."src".$ds."class.orgelmanFunctions.php"); 
+   require_once ($dir."src".$ds."class.orgelmanFunctions.php"); 
+}
+if(file_exists($dir."src".$ds."class.text.php")) {
+   require_once ($dir."src".$ds."class.text.php"); 
 }
 if(file_exists($dir."src".$ds."class.browser.php")) {
-   echo md5_file($dir."src".$ds."class.browser.php"); 
+   require_once ($dir."src".$ds."class.browser.php"); 
 }
 ?>

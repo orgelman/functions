@@ -263,6 +263,32 @@ class orgelmanFunctions {
       return $this->server;
    }
    
+   public function isApp() {
+      $ua      = explode(" ",$_SERVER["HTTP_USER_AGENT"],2);
+      $version = explode("/",$ua[0]);
+      
+      $app = 1;
+      if(isset($version[0])) {
+         if($version[0] != "OrgelmanSystems") {
+            $app = 0;
+         }
+      } else {
+         $app = 0;
+      }
+      
+      if(isset($ua[1])) {
+         $arc = str_replace(array("(",")"),"",$ua[1]);
+         $arclight = explode(" ",$arc);
+         if($arclight[0] != "ArcLight") {
+            $app = 0;
+         } else {
+            $app = $arclight[2];
+         }
+      } else {
+         $app = 0;
+      }
+      return $app;
+   }
    
    public function botTrap($input,$subject="") {
       $u                = uniqid();

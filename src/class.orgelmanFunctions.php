@@ -14,6 +14,9 @@ class orgelmanFunctions {
    
    private $root                    = "";
    private $path                    = "";
+   
+   private $appDevice               = "";
+   private $appClient               = "";
    public function __construct($root="") {
       if($root!="") {
          $this->root = $root;
@@ -263,32 +266,6 @@ class orgelmanFunctions {
       return $this->server;
    }
    
-   public function isApp() {
-      $ua      = explode(" ",$_SERVER["HTTP_USER_AGENT"],2);
-      $version = explode("/",$ua[0]);
-      
-      $app = 1;
-      if(isset($version[0])) {
-         if($version[0] != "OrgelmanSystems") {
-            $app = 0;
-         }
-      } else {
-         $app = 0;
-      }
-      
-      if(isset($ua[1])) {
-         $arc = str_replace(array("(",")"),"",$ua[1]);
-         $arclight = explode(" ",$arc);
-         if($arclight[0] != "ArcLight") {
-            $app = 0;
-         } else {
-            $app = $arclight[2];
-         }
-      } else {
-         $app = 0;
-      }
-      return $app;
-   }
    
    public function botTrap($input,$subject="") {
       $u                = uniqid();
@@ -370,7 +347,46 @@ class orgelmanFunctions {
       return $str;
    }
    
-   
+   public function isApp() {
+      $ua      = explode(" ",$_SERVER["HTTP_USER_AGENT"],2);
+      $version = explode("/",$ua[0]);
+      
+      $app = 1;
+      if(isset($version[0])) {
+         if($version[0] != "OrgelmanSystems") {
+            $app = 0;
+         }
+      } else {
+         $app = 0;
+      }
+      
+      if(isset($ua[1])) {
+         $arc = str_replace(array("(",")"),"",$ua[1]);
+         $arclight = explode(" ",$arc);
+         if($arclight[0] != "ArcLight") {
+            $app = 0;
+         } else {
+            $dev = explode(":",$arclight[2]);
+            $app = $dev[0];
+            $device = $dev[1];
+            
+            $this->appClient = $app;
+            $this->appDevice = $device;
+            
+            $this->get_client();
+            $this->browser->setPlatform($app);
+         }
+      } else {
+         $app = 0;
+      }
+      
+      return $app;
+   }
+   public function get_app_id() {
+      $this->isApp();
+      
+      return $this->appDevice;
+   }
    
    public function setCron($cronPath) {
       $response   = @file_get_contents("https://cron.orgelman.systems/setCall.php", false, $this->CronOptions($cronPath) );

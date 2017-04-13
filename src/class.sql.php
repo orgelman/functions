@@ -87,32 +87,30 @@ class orgelmanSQL {
          die("SQL missing ".$prefix." Called: ". $caller["file"]." [".$caller["line"]."]");
       }
       if($q!="") {
-         $q = str_replace($prefix,"`".constant("SQL_NAME")."`.`".constant("SQL_PREFIX")."`",$q);
+         $q = str_replace($prefix,"`".constant("SQL_NAME")."`.`".constant("SQL_PREFIX")."",$q);
       }
-      if($this->CORE['config']->databaseusage) {
-         if(isset($this->DBh)) {} else {
-            $this->DBh = $this->StartDBConnection();
-         }
-         $MySQLi[0]["Result"] = $this->DBh->query($q);
+      if(isset($this->DBh)) {} else {
+         $this->DBh = $this->StartDBConnection();
+      }
+      $MySQLi[0]["Result"] = $this->DBh->query($q);
       
-         if(strtolower(substr($q, 0, strlen($sel))) === strtolower($sel)) {
-            if(!$MySQLi[0]["Result"]) {
-               die("SQL ERROR: ".$q."\nSQL ERROR: ".$this->DBh->error);
-            } elseif($MySQLi[0]["Result"]->num_rows>0) {
-               while($MySQLi[0]["Rows"]=$MySQLi[0]["Result"]->fetch_object()){
-                  $arr[] = $MySQLi[0]["Rows"];
-               }
-               return $arr;
-            } elseif($MySQLi[0]["Result"]->num_rows==0) {
-               return $arr;
+      if(strtolower(substr($q, 0, strlen($sel))) === strtolower($sel)) {
+         if(!$MySQLi[0]["Result"]) {
+            die("SQL ERROR: ".$q."\nSQL ERROR: ".$this->DBh->error);
+         } elseif($MySQLi[0]["Result"]->num_rows>0) {
+            while($MySQLi[0]["Rows"]=$MySQLi[0]["Result"]->fetch_object()){
+               $arr[] = $MySQLi[0]["Rows"];
             }
-         } else {
-            if(!$MySQLi[0]["Result"]) {
-               die("SQL ERROR: ".$q."\nSQL ERROR: ".$this->DBh->error);
-               return false;
-            }
-            return true;
+            return $arr;
+         } elseif($MySQLi[0]["Result"]->num_rows==0) {
+            return $arr;
          }
+      } else {
+         if(!$MySQLi[0]["Result"]) {
+            die("SQL ERROR: ".$q."\nSQL ERROR: ".$this->DBh->error);
+            return false;
+         }
+         return true;
       }
       return false;
    }

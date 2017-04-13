@@ -18,8 +18,10 @@
     },
     "autoload": {
         "classmap": [
+            "src/class.browser.php",
             "src/class.orgelmanFunctions.php",
-            "src/class.browser.php"
+            "src/class.sql.php",
+            "src/class.text.php"
         ]
     },
     "license": "LGPL-2.1"

@@ -21,6 +21,7 @@ class orgelmanFunctions {
       if($root!="") {
          $this->root = $root;
       }
+      $this->client = new stdClass;
       $this->client->console = true;
       if(php_sapi_name()!='cli') {
          $this->client->console = false;

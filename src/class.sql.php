@@ -9,7 +9,7 @@
 if(get_included_files()[0]==__FILE__){header("HTTP/1.1 403 Forbidden");die('<h1 style="font-family:arial;">Error 403: Forbidden</h1>');} 
 
 class orgelmanSQL {
-   private $DBh            = "";
+   public  $DBh            = "";
    
    private $SQL_HOST       = "";
    private $SQL_USERNAME   = "";
@@ -17,7 +17,7 @@ class orgelmanSQL {
    private $SQL_NAME       = "";
    private $SQL_PREFIX     = "";
    
-   public function __construct($SQL_HOST,$SQL_USERNAME,$SQL_PASSWORD,$SQL_NAME,$SQL_PREFIX) {
+   public function __construct($SQL_HOST="",$SQL_USERNAME="",$SQL_PASSWORD="",$SQL_NAME="",$SQL_PREFIX="") {
       if(defined(SQL_HOST)) {
          $this->SQL_HOST      = constant(SQL_HOST);
       } else {
@@ -52,12 +52,10 @@ class orgelmanSQL {
       $this->DBh = $this->StartDBConnection();
    }
    public function __destruct() {
-      if(isset($this->DBh)){
-         $this->StopDBConnection($this->DBh);
-      }
+      $this->StopDBConnection();
    }
    
-   private function StartDBConnection() {
+   public function StartDBConnection() {
       $DBh = false;
       if((isset($DBh)) && ($DBh!="")) { 
             
@@ -71,12 +69,10 @@ class orgelmanSQL {
             die("Connection error: ".__LINE__);
          }
       }
+      $this->DBh = $DBh;
       return $DBh;
    }
-   private function StopDBConnection($DBh){
-      if((isset($DBh)) && ($DBh!="")) {
-         mysqli_close($DBh);
-      }
+   public function StopDBConnection(){
    }
    public function SQL($q) { 
       $arr     = array();

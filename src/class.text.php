@@ -16,16 +16,21 @@ class orgelmanText {
    private $replaceOld    = array("+"           ,"-"           ,"/"           ,"\\"          ," "           ,"&"           ,";"           ,":"           ,"="           ,'"'           ,"'"           ,"`"           ,"%"           ,"$"           );
    private $saltMaxLength = 255;
    
+   private $debug         = false;
+   
    public function __construct() {
-      $this->key = $this->md5hash($this->key);
-      $this->secondKey = $this->md5hash($this->secondKey);
+      $this->key        = $this->md5hash($this->key);
+      $this->secondKey  = $this->md5hash($this->secondKey);
    }
    
+   public function set_debug($bool) {
+      $this->debug = $bool;
+   }
    public function set_key($str) {
-      $this->key = $this->md5hash($str);
+      $this->key        = $this->md5hash($str);
    }
    public function set_secondKey($str) {
-      $this->secondKey = $this->md5hash($str);
+      $this->secondKey  = $this->md5hash($str);
    }
    
    
@@ -103,7 +108,7 @@ class orgelmanText {
       return $str;
    }
    public function shortCode($str="") {
-      if($str!="") {
+      if(($str!="") && (!$this->debug)) {
          $str = preg_replace("/(console.(...)\((\"|\')(.*)(\"|\'))\);/ix", "", $str);
          $str = preg_replace("/<!--[^[if][^<![](.|\s)*?-->/", "", $str);
          $str = preg_replace('!/\*.*?\*/!s', '', $str);

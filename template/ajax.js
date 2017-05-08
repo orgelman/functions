@@ -26,7 +26,7 @@ $(function() {
             console.log("Error: " + error);
             console.log(data);
             var x = "hideId" + Math.floor((Math.random() * 1000000) + 1);
-            $("#jsError").append("<div id='"+x+"' class='alert alert-warning'><i class='fa fa-exclamation-circle'></i> jQuery error</div>").slideDown();
+            $("#jsError").append("<div id='"+x+"' class='alert alert-warning'><i class='fa fa-exclamation-circle'></i> jQuery error<br>"+error+"</div>").slideDown();
             setTimeout(function() {$("#"+x).slideUp()},60000);
          } 
       },
@@ -35,7 +35,7 @@ $(function() {
       
          console.log(textStatus + "Error: " + errorThrown + ".");
          var x = "hideId" + Math.floor((Math.random() * 1000000) + 1);
-         $("#jsError").append("<div id='"+x+"' class='alert alert-danger'><i class='fa fa-exclamation-circle'></i> Ajax error</div>").slideDown();
+         $("#jsError").append("<div id='"+x+"' class='alert alert-danger'><i class='fa fa-exclamation-circle'></i> Ajax error<br>"+error+"</div>").slideDown();
          setTimeout(function() {$("#"+x).slideUp()},60000);
       }
    }).always(function(){

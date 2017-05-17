@@ -107,8 +107,12 @@ class orgelmanText {
       $str = $this->shortCode($str);
       return $str;
    }
-   public function shortCode($str="") {
-      if(($str!="") && (!$this->debug)) {
+   public function shortCode($str="",$over=false) {
+      $debug = $this->debug;
+      if($over) {
+         $debug = false;
+      }
+      if(($str!="") && (!$debug)) {
          $str = preg_replace("/(console.(...)\((\"|\')(.*)(\"|\'))\);/ix", "", $str);
          $str = preg_replace("/<!--[^[if][^<![](.|\s)*?-->/", "", $str);
          $str = preg_replace('!/\*.*?\*/!s', '', $str);

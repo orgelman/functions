@@ -99,7 +99,7 @@ class orgelmanSQL {
             }
             return $arr;
          } elseif($MySQLi[0]["Result"]->num_rows==0) {
-            return $arr;
+            return false;
          }
       } else {
          if(!$MySQLi[0]["Result"]) {
@@ -111,4 +111,3 @@ class orgelmanSQL {
       return false;
    }
 }
-   ?>

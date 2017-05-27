@@ -124,7 +124,7 @@ class orgelmanText {
          $str = preg_replace("/(\s*\{\s*)/isx", "{", $str);
          $str = preg_replace("/(\s*\}\s*)/isx", "}", $str);
          $str = preg_replace("/\/\/?\s*\*[\s\S]*?\*\s*\/\/?/ix", "",$str);
-         $str = str_replace(array("\n","\r"),"",preg_replace("/\s{2,}/", ' ',$str));
+         $str = str_replace(array("\n","\r","console.log(obj);","console.log(data);"),"",preg_replace("/\s{2,}/", ' ',$str));
             
          $old= array('( ',' )','function ()',') {',', funct','if (','if(! ',' == ',' === '," != "," !== ",'", "',"', '",'(! ');
          $new= array('(' ,')' ,'function()' ,'){' ,',funct' ,'if(' ,'if(!' ,'=='  ,'==='  ,"!="  ,"!=="  ,'","' ,"','" ,'(!' );
@@ -183,7 +183,7 @@ class orgelmanText {
       if (defined("CRYPT_BLOWFISH") && CRYPT_BLOWFISH) {
          $salt = '$2y$11$' . substr(md5(uniqid(rand(), true)), 0, $this->saltMaxLength);
          $hash = crypt($password, $salt);
-         $hash = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, md5($this->encryptKey), $hash, MCRYPT_MODE_CBC, md5(md5($this->encryptKey))));
+         $hash = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, md5($this->key), $hash, MCRYPT_MODE_CBC, md5(md5($this->key))));
          $hash = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, md5($this->secondKey), $hash, MCRYPT_MODE_CBC, md5(md5($this->secondKey))));
          $hash = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, md5($user), $hash, MCRYPT_MODE_CBC, md5(md5($user))));
          return $this->encrypt($hash,$user,"safestpass");
@@ -194,7 +194,7 @@ class orgelmanText {
       $hashedPassword = $this->decrypt($hashedPassword,$user);
       $hashedPassword = rtrim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, md5($user), base64_decode($hashedPassword), MCRYPT_MODE_CBC, md5(md5($user))), "\0");
       $hashedPassword = rtrim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, md5($this->secondKey), base64_decode($hashedPassword), MCRYPT_MODE_CBC, md5(md5($this->secondKey))), "\0");
-      $hashedPassword = rtrim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, md5($this->encryptKey), base64_decode($hashedPassword), MCRYPT_MODE_CBC, md5(md5($this->encryptKey))), "\0");
+      $hashedPassword = rtrim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, md5($this->key), base64_decode($hashedPassword), MCRYPT_MODE_CBC, md5(md5($this->key))), "\0");
       return crypt($password, $hashedPassword) == $hashedPassword;
    }
    

@@ -74,38 +74,39 @@ class orgelmanText {
       $str2             = "";
       foreach($taglist as $id => $tag) {
          if(($tag!="") && ($id!="")) {
-            $str2         .= "|".addslashes(htmlentities($id))."/TA()XYX()GG/".addslashes(htmlentities($tag));
+            $str2         .= addslashes(htmlentities($id))."/TA()XYX()GG/".addslashes(htmlentities($tag))."|";
          }
       }
+      
+      $str              = $this->encrypt(utf8_encode(preg_replace('!\s+!', ' ', str_replace(array("\n","\r"),"",$str ))),"savetextfi","savetextfi");
       if($str2!="") {
-         $str2 = "|".$this->encrypt("savingtext",$str2,"savingtext");
+         $str2          = $this->encrypt(utf8_encode(preg_replace('!\s+!', ' ', str_replace(array("\n","\r"),"",$str2))),"savetextse","savetextse");
       }
-      $str              = str_replace(array("\n","\r"),"",$str.$str2);
-      $str              = preg_replace('!\s+!', ' ', $str);
-      return $this->encrypt(utf8_encode($str),"savingtext");
+      
+      return $this->encrypt($str."|".$str2,"savingtext","savingtext");
    }
    public function loadText($str) {
       $str = $this->decrypt($str,"savingtext");
       if(strpos($str, '|') !== false) {
          $tags          = explode("|",stripslashes($str));
-         $str           = $tags[0];
-         $tag           = $tags[1];
-         $tags          = explode("|",stripslashes($this->decrypt($tag,"savingtext")));
-         if(isset($tags[1])) {
+         $str           = str_replace("&amp;","&",$this->decrypt($tags[0],"savetextfi"));
+         $tag           = str_replace("&amp;","&",$this->decrypt($tags[1],"savetextse"));
+                  
+         $tags          = explode("|",stripslashes($tag));
+         
+         if(isset($tags[0])) {
             foreach($tags as $n => $tag) {
-               if(($n!=0) && (strpos($tag, '/TA()XYX()GG/') !== false)) {
+               if(strpos($tag, '/TA()XYX()GG/') !== false) {
                   $replace = explode("/TA()XYX()GG/",$tag);
+                  
                   $str     = str_replace($replace[0],html_entity_decode($replace[1]),$str);
                }
             }
          }
-         $str           = str_replace("&amp;","&",$str);
       }
       $str             = preg_replace('!\s+!', ' ', $str);
-      $str             = str_replace("&amp;","&",$str);
       
-      $str = $this->shortCode($str);
-      return $str;
+      return $this->shortCode($str);
    }
    public function shortCode($str="",$over=false) {
       $debug = $this->debug;

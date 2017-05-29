@@ -58,6 +58,9 @@ class orgelmanText {
    }
    public function saveText($str) {
       $taglist             = array("");
+
+      $str3                = substr(preg_replace('!\s+!', ' ', strip_tags($str)), 0, 25);
+      
       $str                 = str_replace($this->replaceNew,$this->replaceOld,$str);
       $str                 = str_replace(array("\n","\r","|"),array("<br>\n","","&#124;"),html_entity_decode(html_entity_decode($str)));
       $str                 = str_replace(array("<br>","<br />","<hr>","<hr />"), array("<br>","<br>","<hr>","<hr>"), $str);
@@ -83,9 +86,15 @@ class orgelmanText {
          $str2          = $this->encrypt(utf8_encode(preg_replace('!\s+!', ' ', str_replace(array("\n","\r"),"",$str2))),"savetextse","savetextse");
       }
       
-      return $this->encrypt($str."|".$str2,"savingtext","savingtext");
+      return $str3."|".$this->encrypt($str."|".$str2,"savingtext","savingtext");
    }
    public function loadText($str) {
+      $e = explode("|",$str,2);
+      $str = $e[0];
+      if(isset($e[1])) {
+         $str = $e[1];
+      } 
+      
       $str = $this->decrypt($str,"savingtext");
       if(strpos($str, '|') !== false) {
          $tags          = explode("|",stripslashes($str));

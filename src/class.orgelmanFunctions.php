@@ -232,21 +232,14 @@ class orgelmanFunctions {
                }
             }
          }
-         if(!empty($this->server->get)) { 
-            $q = "?";
-            $i=0;
-            foreach($this->server->get as $key => $get) {
-               if($get=="") {
-                  $get = true;
-               }
-               if($i!=0) {
-                  $q .= "&";
-               }
-               $q .= $key."=".$get;
-               $i++;
-            }
-         }
       }
+      
+      $this->server->URI         = ltrim($_SERVER["REQUEST_URI"],"/");
+         
+      if (substr($this->server->URI, 0, strlen($this->server->dir)) == $this->server->dir) {
+         $this->server->URI      = ltrim(substr(trim(trim($_SERVER["REQUEST_URI"],"/")), strlen(trim(trim($this->server->dir,"/")))),"/");
+      } 
+      
       $uri = $this->server->URI;
       if(trim(trim($this->server->dir,"/")) !="") {
          if(substr($this->server->URI, 0, strlen($this->server->dir)) === $this->server->dir) {
@@ -259,12 +252,51 @@ class orgelmanFunctions {
       $this->root                   = $this->server->root;
       $this->path                   = $this->server->dir;
       
-      $this->server->URI            = $uri.$q;
-      
+      $this->server->URI            = $uri.$this->set_domain_uri();
       $this->server->domain         = trim($this->server->domain.$this->server->dir,"/")."/";
-      $this->server->full           = $this->server->domain.$uri.$q;
+      $this->server->full           = $this->server->domain.$uri.$this->set_domain_uri();
       
       return $this->server;
+   }
+   public function get_domain_remove_get($arr=array()) {
+      foreach($arr as $str) {
+         if(isset($this->server->get[$str])) {
+            unset($this->server->get[$str]);
+         }
+      }
+      $this->set_domain_uri();
+      return true;
+   }
+   public function set_domain_uri() {
+      $q = "";
+      if(!empty($this->server->get)) { 
+         $q = "?";
+         $i=0;
+         foreach($this->server->get as $key => $get) {
+            if($get=="") {
+               $get = true;
+            }
+            if($i!=0) {
+               $q .= "&";
+            }
+            $q .= $key."=".$get;
+            $i++;
+         }
+      }
+      
+      $uri = $this->server->URI;
+      if(trim(trim($this->server->dir,"/")) !="") {
+         if(substr($this->server->URI, 0, strlen($this->server->dir)) === $this->server->dir) {
+            $uri = substr($this->server->URI, strlen($this->server->dir));
+         }
+      }
+      if(strpos($this->server->URI, '?') !== false) {
+         $uri = substr($uri, 0, strpos($uri, "?"));
+      }
+      $this->server->URI            = $uri.$q;
+      $this->server->full           = $this->server->domain.$this->server->URI;
+      
+      return $q;
    }
    
    
@@ -282,7 +314,7 @@ class orgelmanFunctions {
             $subject = "?subject=".addslashes(urlencode($subject));
          }
          $str .= '<span class="spamfreeemail">'."\n"; 
-         $str .= '   <i class="fa fa-at"></i>&#32;'."\n";
+         $str .= '   '."\n";
          $str .= '   <span class="'.$id.'">'.$parts["prefix"]." [ at ] ".$parts["domain"]." [ dot ] ".$parts["top"].'</span>'."\n";
          $str .= '   <script>'."\n";
          $str .= '      var jQueryScriptOutputted'.$u.' = false;'."\n";
@@ -301,8 +333,8 @@ class orgelmanFunctions {
          $str .= '               var linktext = pre + "&#64;" + dom + "." + "'.$parts["top"].'";'."\n";
          $str .= '               var linktextP = pre;'."\n";
          $str .= '               var linktextD = dom + "." + "'.$parts["top"].'";'."\n";
-         $str .= '               $( ".'.$id.'"   ).html("<"+"a class=\'mail\' mail=" + linktextP + " dom=" + linktextD + "><" + "/a>");'."\n";
-         $str .= '               $( ".'.$id.' a" ).each(function(){var t=$(this).attr("mail")+"&#64;"+$(this).attr("dom");$(this).html(t)});'."\n";
+         $str .= '               $( ".'.$id.'"   ).html("<"+"a style=\'cursor:pointer;\' class=\'mail\' mail=" + linktextP + " dom=" + linktextD + "><" + "/a>");'."\n";
+         $str .= '               $( ".'.$id.' a" ).each(function(){var t=$(this).attr("mail")+"&#64;"+$(this).attr("dom");$(this).html("<i class=\'fa fa-at\'></i>&#32; "+t)});'."\n";
          $str .= '               $( ".'.$id.' a" ).click(function(e){e.preventDefault();var t="mail"+"to:"+$(this).attr("mail")+\'@\'+$(this).attr("dom")+"'.$subject.'";if($(this).attr("mail")){location.href=t}});'."\n";
          $str .= '            });'."\n";
          $str .= '         }'."\n";
@@ -317,7 +349,6 @@ class orgelmanFunctions {
          $id               = $this->toAscii("p_".rand(0,9999999)."_".uniqid()); 
          $phone            = str_replace(array(" ","-"),array("",""),addslashes(strtolower($input)));
          $str .= '<span class="spamfreephone">'."\n"; 
-         $str .= '   <i class="fa fa-phone"></i>&#32;'."\n";
          $str .= '   <span class="'.$id.'">'.$phone.'</span>'."\n";
          $str .= '   <script>'."\n";
          $str .= '      var jQueryScriptOutputted'.$u.' = false;'."\n";
@@ -333,7 +364,7 @@ class orgelmanFunctions {
          $str .= '               console.log("Phonelink");'."\n";
          $str .= '               var phone = "'.$phone.'";'."\n";
          $str .= '               $( ".'.$id.'"   ).html("<"+"a class=\'phone\' phone=" + phone + "><" + "/a>");'."\n";
-         $str .= '               $( ".'.$id.' a" ).each(function(){var t=phone;$(this).html(t)});'."\n";
+         $str .= '               $( ".'.$id.' a" ).each(function(){var t=phone;$(this).html("<i class=\'fa fa-phone\'></i>&#32; " + t)});'."\n";
          $str .= '               $( ".'.$id.' a" ).click(function(e){e.preventDefault();var t="tel:"+$(this).attr("phone");if($(this).attr("phone")){location.href=t}});'."\n";
          $str .= '            });'."\n";
          $str .= '         }'."\n";

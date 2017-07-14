@@ -41,7 +41,7 @@
                   data-alias="1orgelman" 
                   data-artist="DJ Orgelman" 
                   data-image="https://arclight.orgelman.systems/media/orgelman-backgroundimage" 
-                  data-music="mp3.php" 
+                  data-music="https://arclight.orgelman.systems/media/orgelman.596936429ec6c6260.ra" 
                   data-id="AB323BF9CD558FF6827175DB1CBE577A"  
                   rel="nofollow">
                      <i class="playButtons fa fa-play textprimary media5966707179ace"></i> Orgelman @ V&#228;rldens Fest -17 (170603)

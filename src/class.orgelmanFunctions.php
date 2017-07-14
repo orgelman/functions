@@ -9,7 +9,7 @@
 if(get_included_files()[0]==__FILE__){header("HTTP/1.1 403 Forbidden");die('<h1 style="font-family:arial;">Error 403: Forbidden</h1>');} 
 
 class orgelmanFunctions {
-   private $version                 = "0.3.0";
+   private $version                 = "0.3.2";
    private $update                  = "https://github.com/orgelman/functions/releases";
    
    private $root                    = "";
@@ -300,81 +300,88 @@ class orgelmanFunctions {
    }
    
    
-   public function botTrap($input,$subject="") {
+   public function botTrap($input,$subject="",$fa="") {
       $u                = uniqid();
       $str              = '';
-      
-      if (!filter_var($input, FILTER_VALIDATE_EMAIL) === false) {
-         $id               = $this->toAscii("e_".rand(0,9999999)."_".uniqid()); 
-         $email            = strtolower($input);
-         $parts["prefix"]  = substr($email, 0,strrpos($email, '@'));
-         $parts["domain"]  = substr(substr(strrchr($email, '@'), 1), 0 , (strrpos(substr(strrchr($email, '@'), 1), ".")));
-         $parts["top"]     = substr(strrchr($email, '.'), 1);
-         if($subject!="") {
-            $subject = "?subject=".addslashes(urlencode($subject));
+      if($input!="") {
+         if (!filter_var($input, FILTER_VALIDATE_EMAIL) === false) {
+            if($fa=="") {
+               $fa = "at";
+            }
+            $id               = $this->toAscii("e_".rand(0,9999999)."_".uniqid()); 
+            $email            = strtolower($input);
+            $parts["prefix"]  = substr($email, 0,strrpos($email, '@'));
+            $parts["domain"]  = substr(substr(strrchr($email, '@'), 1), 0 , (strrpos(substr(strrchr($email, '@'), 1), ".")));
+            $parts["top"]     = substr(strrchr($email, '.'), 1);
+            if($subject!="") {
+               $subject = "?subject=".addslashes(urlencode($subject));
+            }
+            $str .= '<span class="spamfreeemail">'."\n"; 
+            $str .= '   '."\n";
+            $str .= '   <span class="'.$id.'">'.$parts["prefix"]." [ at ] ".$parts["domain"]." [ dot ] ".$parts["top"].'</span>'."\n";
+            $str .= '   <script>'."\n";
+            $str .= '      var jQueryScriptOutputted'.$u.' = false;'."\n";
+            $str .= '      function initJQuery'.$u.'() {'."\n";
+            $str .= '         if (typeof(jQuery) == "undefined") {'."\n";
+            $str .= '            if (! jQueryScriptOutputted'.$u.') {'."\n";
+            $str .= '               jQueryScriptOutputted'.$u.' = true;'."\n";
+            $str .= '               document.write("<scr" + "ipt type=\'text/javascript\' src=\'//code.jquery.com/jquery-3.1.1.min.js\' integrity=\'sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=\' crossorigin=\'anonymous\'></scr" + "ipt>");'."\n";
+            $str .= '            }'."\n";
+            $str .= '            setTimeout("initJQuery'.$u.'()", 50);'."\n";
+            $str .= '         } else {'."\n";
+            $str .= '            $(function() {'."\n";
+            $str .= '               console.log("Emaillink");'."\n";
+            $str .= '               var pre = "'.$parts["prefix"].'";'."\n";
+            $str .= '               var dom = "'.$parts["domain"].'";'."\n";
+            $str .= '               var linktext = pre + "&#64;" + dom + "." + "'.$parts["top"].'";'."\n";
+            $str .= '               var linktextP = pre;'."\n";
+            $str .= '               var linktextD = dom + "." + "'.$parts["top"].'";'."\n";
+            $str .= '               $( ".'.$id.'"   ).html("<"+"a style=\'cursor:pointer;\' class=\'mail\' mail=" + linktextP + " dom=" + linktextD + "><" + "/a>");'."\n";
+            $str .= '               $( ".'.$id.' a" ).each(function(){var t=$(this).attr("mail")+"&#64;"+$(this).attr("dom");$(this).html("<i class=\'fa fa-'.$fa.'\'></i>&#32; "+t)});'."\n";
+            $str .= '               $( ".'.$id.' a" ).click(function(e){e.preventDefault();var t="mail"+"to:"+$(this).attr("mail")+\'@\'+$(this).attr("dom")+"'.$subject.'";if($(this).attr("mail")){location.href=t}});'."\n";
+            $str .= '            });'."\n";
+            $str .= '         }'."\n";
+            $str .= '      }'."\n";
+            $str .= '      initJQuery'.$u.'();'."\n";
+            $str .= '   </script>'."\n";   
+            $str .= '   <noscript>'."\n";
+            $str .= '      <a href="http://enable-javascript.com/">Javascript</a>'."\n";
+            $str .= '   </noscript>'."\n";
+            $str .= '</span>'."\n";
+         } else {
+            if($fa=="") {
+               $fa = "phone";
+            }
+            $id               = $this->toAscii("p_".rand(0,9999999)."_".uniqid()); 
+            $phone            = str_replace(array(" ","-"),array("",""),addslashes(strtolower($input)));
+            $str .= '<span class="spamfreephone">'."\n"; 
+            $str .= '   <span class="'.$id.'">'.$phone.'</span>'."\n";
+            $str .= '   <script>'."\n";
+            $str .= '      var jQueryScriptOutputted'.$u.' = false;'."\n";
+            $str .= '      function initJQuery'.$u.'() {'."\n";
+            $str .= '         if (typeof(jQuery) == "undefined") {'."\n";
+            $str .= '            if (! jQueryScriptOutputted'.$u.') {'."\n";
+            $str .= '               jQueryScriptOutputted'.$u.' = true;'."\n";
+            $str .= '               document.write("<scr" + "ipt type=\'text/javascript\' src=\'//code.jquery.com/jquery-3.1.1.min.js\' integrity=\'sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=\' crossorigin=\'anonymous\'></scr" + "ipt>");'."\n";
+            $str .= '            }'."\n";
+            $str .= '            setTimeout("initJQuery'.$u.'()", 50);'."\n";
+            $str .= '         } else {'."\n";
+            $str .= '            $(function() {'."\n";
+            $str .= '               console.log("Phonelink");'."\n";
+            $str .= '               var phone = "'.$phone.'";'."\n";
+            $str .= '               $( ".'.$id.'"   ).html("<"+"a style=\'cursor:pointer;\' class=\'phone\' phone=" + phone + "><" + "/a>");'."\n";
+            $str .= '               $( ".'.$id.' a" ).each(function(){var t=phone;$(this).html("<i class=\'fa fa-'.$fa.'\'></i>&#32; " + t)});'."\n";
+            $str .= '               $( ".'.$id.' a" ).click(function(e){e.preventDefault();var t="tel:"+$(this).attr("phone");if($(this).attr("phone")){location.href=t}});'."\n";
+            $str .= '            });'."\n";
+            $str .= '         }'."\n";
+            $str .= '      }'."\n";
+            $str .= '      initJQuery'.$u.'();'."\n";
+            $str .= '   </script>'."\n";   
+            $str .= '   <noscript>'."\n";
+            $str .= '      <a href="http://enable-javascript.com/">Javascript</a>'."\n";
+            $str .= '   </noscript>'."\n";
+            $str .= '</span>'."\n";
          }
-         $str .= '<span class="spamfreeemail">'."\n"; 
-         $str .= '   '."\n";
-         $str .= '   <span class="'.$id.'">'.$parts["prefix"]." [ at ] ".$parts["domain"]." [ dot ] ".$parts["top"].'</span>'."\n";
-         $str .= '   <script>'."\n";
-         $str .= '      var jQueryScriptOutputted'.$u.' = false;'."\n";
-         $str .= '      function initJQuery'.$u.'() {'."\n";
-         $str .= '         if (typeof(jQuery) == "undefined") {'."\n";
-         $str .= '            if (! jQueryScriptOutputted'.$u.') {'."\n";
-         $str .= '               jQueryScriptOutputted'.$u.' = true;'."\n";
-         $str .= '               document.write("<scr" + "ipt type=\'text/javascript\' src=\'//code.jquery.com/jquery-3.1.1.min.js\' integrity=\'sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=\' crossorigin=\'anonymous\'></scr" + "ipt>");'."\n";
-         $str .= '            }'."\n";
-         $str .= '            setTimeout("initJQuery'.$u.'()", 50);'."\n";
-         $str .= '         } else {'."\n";
-         $str .= '            $(function() {'."\n";
-         $str .= '               console.log("Emaillink");'."\n";
-         $str .= '               var pre = "'.$parts["prefix"].'";'."\n";
-         $str .= '               var dom = "'.$parts["domain"].'";'."\n";
-         $str .= '               var linktext = pre + "&#64;" + dom + "." + "'.$parts["top"].'";'."\n";
-         $str .= '               var linktextP = pre;'."\n";
-         $str .= '               var linktextD = dom + "." + "'.$parts["top"].'";'."\n";
-         $str .= '               $( ".'.$id.'"   ).html("<"+"a style=\'cursor:pointer;\' class=\'mail\' mail=" + linktextP + " dom=" + linktextD + "><" + "/a>");'."\n";
-         $str .= '               $( ".'.$id.' a" ).each(function(){var t=$(this).attr("mail")+"&#64;"+$(this).attr("dom");$(this).html("<i class=\'fa fa-at\'></i>&#32; "+t)});'."\n";
-         $str .= '               $( ".'.$id.' a" ).click(function(e){e.preventDefault();var t="mail"+"to:"+$(this).attr("mail")+\'@\'+$(this).attr("dom")+"'.$subject.'";if($(this).attr("mail")){location.href=t}});'."\n";
-         $str .= '            });'."\n";
-         $str .= '         }'."\n";
-         $str .= '      }'."\n";
-         $str .= '      initJQuery'.$u.'();'."\n";
-         $str .= '   </script>'."\n";   
-         $str .= '   <noscript>'."\n";
-         $str .= '      <a href="http://enable-javascript.com/">Javascript</a>'."\n";
-         $str .= '   </noscript>'."\n";
-         $str .= '</span>'."\n";
-      } else {
-         $id               = $this->toAscii("p_".rand(0,9999999)."_".uniqid()); 
-         $phone            = str_replace(array(" ","-"),array("",""),addslashes(strtolower($input)));
-         $str .= '<span class="spamfreephone">'."\n"; 
-         $str .= '   <span class="'.$id.'">'.$phone.'</span>'."\n";
-         $str .= '   <script>'."\n";
-         $str .= '      var jQueryScriptOutputted'.$u.' = false;'."\n";
-         $str .= '      function initJQuery'.$u.'() {'."\n";
-         $str .= '         if (typeof(jQuery) == "undefined") {'."\n";
-         $str .= '            if (! jQueryScriptOutputted'.$u.') {'."\n";
-         $str .= '               jQueryScriptOutputted'.$u.' = true;'."\n";
-         $str .= '               document.write("<scr" + "ipt type=\'text/javascript\' src=\'//code.jquery.com/jquery-3.1.1.min.js\' integrity=\'sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=\' crossorigin=\'anonymous\'></scr" + "ipt>");'."\n";
-         $str .= '            }'."\n";
-         $str .= '            setTimeout("initJQuery'.$u.'()", 50);'."\n";
-         $str .= '         } else {'."\n";
-         $str .= '            $(function() {'."\n";
-         $str .= '               console.log("Phonelink");'."\n";
-         $str .= '               var phone = "'.$phone.'";'."\n";
-         $str .= '               $( ".'.$id.'"   ).html("<"+"a class=\'phone\' phone=" + phone + "><" + "/a>");'."\n";
-         $str .= '               $( ".'.$id.' a" ).each(function(){var t=phone;$(this).html("<i class=\'fa fa-phone\'></i>&#32; " + t)});'."\n";
-         $str .= '               $( ".'.$id.' a" ).click(function(e){e.preventDefault();var t="tel:"+$(this).attr("phone");if($(this).attr("phone")){location.href=t}});'."\n";
-         $str .= '            });'."\n";
-         $str .= '         }'."\n";
-         $str .= '      }'."\n";
-         $str .= '      initJQuery'.$u.'();'."\n";
-         $str .= '   </script>'."\n";   
-         $str .= '   <noscript>'."\n";
-         $str .= '      <a href="http://enable-javascript.com/">Javascript</a>'."\n";
-         $str .= '   </noscript>'."\n";
-         $str .= '</span>'."\n";
       }
       return $str;
    }

@@ -44,7 +44,7 @@ class orgelmanText {
    public function saveText_stripStand($str) {
       $str = str_replace(array("\n","\r"), array("",""), $str);
       $str = str_replace(array("<br>","<br />","<hr>","<hr />"), array("<br>","<br>","<hr>","<hr>"), $str);
-      return $this->saveText(strip_tags($str,"<div><br><hr><ul><ol><li><p><h1><h2><h3><h4><h5><h6><small><sub><sup><s><i><b><strong><u><s><a><img><blockquote><cite><table><tbody><thead><tfoot><tr><td><th>"));
+      return $this->saveText(strip_tags($str,"<div><br><hr><ul><ol><li><p><h1><h2><h3><h4><h5><h6><small><span><big><sub><sup><i><em><b><strong><u><s><a><img><blockquote><cite><pre><code><samp><table><tbody><thead><tfoot><tr><td><th>"));
    }
    public function saveText_stripFull($str,$newline=0) {
       if(is_array($str)) {
@@ -59,7 +59,7 @@ class orgelmanText {
    public function saveText($str) {
       $taglist             = array("");
 
-      $str3                = substr(preg_replace('!\s+!', ' ', strip_tags($str)), 0, 25);
+      $str3                = strtolower(substr(preg_replace('!\s+!', ' ', strip_tags($str)), 0, 25));
       
       $str                 = str_replace($this->replaceNew,$this->replaceOld,$str);
       $str                 = str_replace(array("\n","\r","|"),array("<br>\n","","&#124;"),html_entity_decode(html_entity_decode($str)));
@@ -86,9 +86,10 @@ class orgelmanText {
          $str2          = $this->encrypt(utf8_encode(preg_replace('!\s+!', ' ', str_replace(array("\n","\r"),"",$str2))),"savetextse","savetextse");
       }
       
-      return $str3."|".$this->encrypt($str."|".$str2,"savingtext","savingtext");
+      return addslashes($str3."|".$this->encrypt($str."|".$str2,"savingtext","savingtext"));
    }
    public function loadText($str) {
+      $str = stripslashes($str);
       $e = explode("|",$str,2);
       $str = $e[0];
       if(isset($e[1])) {
@@ -142,6 +143,10 @@ class orgelmanText {
          $str = str_replace($old,$new,$str);
          $str = preg_replace("/^\s/", '',$str);
       }
+      $old= array('[[n]]');
+      $new= array("\n"   );
+      
+      $str = str_replace($old,$new,$str);
       return stripslashes($str);
    }
    
@@ -170,10 +175,10 @@ class orgelmanText {
       $u = substr(substr($this->toAscii(md5(uniqid())), 0, (10-strlen(substr($this->toAscii($prekey), 0, 10)))).substr($this->toAscii($prekey), 0, 10), 0, 10);
       
       if($string!="") {
-         return trim("_!--_".$u."_".str_replace($this->replaceOld,$this->replaceNew,base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, md5($u.$key), trim($string), MCRYPT_MODE_CBC, md5(md5($u.$key)))))."_--!_");
-      } else {
-         return $string;
+         $string = trim("_!--_".$u."_".str_replace($this->replaceOld,$this->replaceNew,base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, md5($u.$key), trim($string), MCRYPT_MODE_CBC, md5(md5($u.$key)))))."_--!_");
       }
+      
+      return $string; 
    }
    public function decrypt($encrypted, $key="") {
       if($key=="") {

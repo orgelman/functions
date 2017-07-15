@@ -1,154 +1,161 @@
-.playMusic {
-   cursor: pointer;
+.OMPM {
+   cursor: pointer !important;
 }
-#toggleFoot {
-   position: fixed;
-   bottom: 0;
-   margin-bottom: 0;
-   width: 100%;
+#OMTF {
+   position: fixed !important;
+   bottom: 0 !important;
+   margin-bottom: 0 !important;
+   width: 100% !important;
 }
-#toggleFoot .panel-default > .panel-heading{
-   background: #00B4FF;
+#OMTF .panel {
+   position: initial;
 }
-#toggleFoot .panel-heading {
-   padding: 0;
-   border-top-left-radius: 0px;
-   border-top-right-radius: 0px;
+#OMTF .panel-default > .panel-heading{
+   background: #00B4FF !important;
 }
-#toggleFoot .panel-group .panel {
-   border-radius: 0;
+#OMTF .panel-heading {
+   padding: 0 !important;
+   border-top-left-radius: 0px !important;
+   border-top-right-radius: 0px !important;
 }
-#toggleFoot .panel-title a {
-   cursor: pointer;
-   color: #FFFFFF;
-   text-align: center;
-   width: 100%;
-   display: block;
-   padding: 10px 15px;
-   font-size: 24px;
-   font-family: Helvetica,Arial,sans-serif;
-   outline: none;
+#OMTF .panel-group .panel {
+   border-radius: 0 !important;
 }
-#toggleFoot .panel-title a:hover, .panel-title a:focus, .panel-title a:active {
-   text-decoration: none;
-   outline: none;
+#OMTF .panel-title a {
+   cursor: pointer !important;
+   color: #FFFFFF !important;
+   text-align: center !important;
+   width: 100% !important;
+   display: block !important;
+   padding: 10px 15px !important;
+   font-size: 24px !important;
+   font-family: Helvetica,Arial,sans-serif !important;
+   outline: none !important;
 }
-#toggleFoot .panel-heading {
+#OMTF .panel-title a:hover, .panel-title a:focus, .panel-title a:active {
+   text-decoration: none !important;
+   outline: none !important;
+}
+#OMTF .panel-heading {
    width: 4em !important;
 }
-#toggleFoot .panel.panel-default {
+#OMTF .panel.panel-default {
    border: 0 !important;
-   background: none;
+   background: none !important;
 }
-#collapseOne {
-   background-color: #ffffff;
+#OMCO {
+   background-color: #ffffff !important;
 }
-#toggleFoot .panel-heading i {
-   -webkit-transition: 0.5s; /* For Safari 3.1 to 6.0 */
-   transition: 0.5s;
+#OMTF .panel-heading i {
+   -webkit-transition: 0.5s !important; /* For Safari 3.1 to 6.0 */
+   transition: 0.5s !important;
 }
-#toggleFoot .panel-heading.open i {
-   -webkit-transform: rotate(180deg); 
-   -moz-transform: rotate(180deg);
-   -o-transform: rotate(180deg);
+#OMTF .panel-heading.open i {
+   -webkit-transform: rotate(180deg) !important; 
+   -moz-transform: rotate(180deg) !important;
+   -o-transform: rotate(180deg) !important;
 }
-#toggleFoot .panel-heading *, #toggleFoot .collapse.in {
-   pointer-events: auto;
+#OMTF .panel-heading *, #OMTF .collapse.in {
+   pointer-events: auto !important;
 }
-#toggleFoot, #toggleFoot .panel-heading, #toggleFoot .panel-default {
-   pointer-events: none;
+#OMTF, #OMTF .panel-heading, #OMTF .panel-default {
+   pointer-events: none !important;
 }
-#collapseOne #player .background {
-   position: absolute;
-   top: 0;
-   bottom: 0;
-   left: 0;
-   right: 0;
-   z-index: 0;
-   background-position: center center;
-   background-repeat: no-repeat;
-   background-size: cover;
-   pointer-events: none;
-   opacity: 0.5;
+#OMCO #player .background {
+   position: absolute !important;
+   top: 0 !important;
+   bottom: 0 !important;
+   left: 0 !important;
+   right: 0 !important;
+   z-index: 0 !important;
+   background-position: center center !important;
+   background-repeat: no-repeat !important;
+   background-size: cover !important;
+   pointer-events: none !important;
+   opacity: 0.5 !important;
     
-   -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
-   filter: grayscale(100%);
+   -webkit-filter: grayscale(100%) !important; /* Safari 6.0 - 9.0 */
+   filter: grayscale(100%) !important;
 }
-#collapseOne #player .foreground * {
+#OMCO #player .foreground * {
    position: relative;
-   z-index: 1;
+   z-index: 1 !important;
 }
-#collapseOne #player .jp-video-play {
+#OMCO #player .jp-video-play {
    display:none !important;
-   margin:0;
-   height:0;
+   margin:0 !important;
+   height:0 !important;
 }
-#collapseOne, #collapseOne #player #jp-title, #collapseOne #player #jp-artist {
+#OMCO, #OMCO #player #jp-title, #OMCO #player #jp-artist {
    font-family: sans-serif !important;
 }
-#collapseOne .panel-body {
-   padding: 0;
-   border: 0;
+#OMCO .panel-body {
+   padding: 0 !important;
+   border: 0 !important;
 }
-#collapseOne #player #jquery_jplayer_N {
+#OMCO #player #jquery_jplayer_N {
    display: none !important;
 }
-#collapseOne #player #jp_container_N {
-   width: 100%;
-   border: 0;
+#OMCO #player #OMjPC {
+   width: 100% !important;
+   border: 0 !important;
 }
-#collapseOne #player .jp-playlist {
-   display:none;
+#OMCO #player .jp-playlist {
+   display:none !important;
 }
-#collapseOne #player .jp-interface {
-   border: 0;
+#OMCO #player .jp-interface {
+   border: 0 !important;
 }
-#collapseOne #player .jp-controls {
-   height: 42px;
-   margin: 0;
+#OMCO #player .jp-controls {
+   height: 42px !important;
+   width: 175px !important;
+   margin: 0 !important;
 }
-#collapseOne #player .jp-controls-holder {
-   top: 0;
-   width: 100%;
-   height: 40px;
+#OMCO #player .jp-controls-holder {
+   top: 0 !important;
+   width: 100% !important;
+   height: 40px !important;
 }
-#collapseOne #player button.jp-load, #collapseOne #player button.jp-play, #collapseOne #player button.jp-pause, #collapseOne #player button.jp-stop, #collapseOne #player a.jp-alias {
-   padding: 0;
-   margin: 0;
-   background: none;
-   text-indent: inherit;
-   border: 1px solid black;
-   background-color: #fff;
-   float: none;
-   position: absolute;
-   top: 0;
-   height: 40px;
-   width: 40px;
-   line-height: 40px;
-   text-align: center;
-   color: #666666;
+#OMCO #player button.jp-load, #OMCO #player button.jp-play, #OMCO #player button.jp-pause, #OMCO #player button.jp-stop, #OMCO #player a.jp-alias, #OMCO #player a.jp-download {
+   padding: 0 !important;
+   margin: 0 !important;
+   background: none !important;
+   text-indent: inherit !important;
+   border: 1px solid #000 !important;
+   background-color: #fff !important;
+   float: none !important;
+   position: absolute !important;
+   top: 0 !important;
+   height: 40px !important;
+   width: 40px !important;
+   line-height: 40px !important;
+   text-align: center !important;
+   color: #666666 !important;
 }
-#collapseOne #player button.jp-play:hover, #collapseOne #player button.jp-pause:hover, #collapseOne #player button.jp-stop:hover, #collapseOne #player a.jp-alias:hover {
-   background-color: #ccc;
+#OMCO #player button.jp-play:hover, #OMCO #player button.jp-pause:hover, #OMCO #player button.jp-stop:hover, #OMCO #player a.jp-alias:hover, #OMCO #player a.jp-download:hover {
+   background-color: #ccc !important;
 }
-#collapseOne #player button.jp-load, #collapseOne #player button.jp-play, #collapseOne #player button.jp-pause {
-   left: 0;
+#OMCO #player button.jp-load, #OMCO #player button.jp-play, #OMCO #player button.jp-pause {
+   left: 0 !important;
 }
-#collapseOne #player button.jp-load {
-   z-index: 100;
-   pointer-events: none;
+#OMCO #player button.jp-load {
+   z-index: 100 !important;
+   pointer-events: none !important;
 }
-#collapseOne #player button.jp-stop {
-   left: 45px;
+#OMCO #player button.jp-stop {
+   left: 45px !important;
 }
-#collapseOne #player a.jp-alias {
-   left: 90px;
+#OMCO #player a.jp-alias {
+   left: 90px !important;
 }
-#collapseOne #player .jp-toggles {
-   position: initial;
-   margin: 0;
+#OMCO #player a.jp-download {
+   left: 135px !important;
 }
-#collapseOne #player button.jp-repeat {
+#OMCO #player .jp-toggles {
+   position: initial !important;
+   margin: 0 !important;
+}
+#OMCO #player button.jp-repeat {
    padding: 0;
    margin: 0;
    background: none;
@@ -162,7 +169,7 @@
    height: 18px;
    width: 18px;
 }
-#collapseOne #player .jp-volume-controls {
+#OMCO #player .jp-volume-controls {
    padding: 0;
    margin: 0;
    background: none;
@@ -177,7 +184,7 @@
    height: 18px;
    width: 94px;
 }
-#collapseOne #player .jp-volume-controls button {
+#OMCO #player .jp-volume-controls button {
    padding: 0;
    margin: 0;
    background: none;
@@ -187,41 +194,43 @@
    line-height: 14px;
    font-size: 14px;
 }
-#collapseOne #player .jp-volume-controls .jp-mute {
+#OMCO #player .jp-volume-controls .jp-mute {
    left:0;
 }
-#collapseOne #player .jp-volume-controls .jp-volume-max {
+#OMCO #player .jp-volume-controls .jp-volume-max {
    right:0;
 }
-#collapseOne #player .jp-progress {
+#OMCO #player .jp-progress {
    height: 20px;
 }
-#collapseOne #player .jp-seek-bar {
+#OMCO #player .jp-seek-bar {
    width: 100%;
    background: none;
 }
-#collapseOne #player .jp-play-bar {
+#OMCO #player .jp-play-bar {
    background: none;
 }
-#collapseOne #player .details {
+#OMCO #player .details {
    padding: 1em;
 }
-#collapseOne #player .jp-volume-bar-value, #collapseOne #player .jp-volume-bar-value {
+#OMCO #player .jp-volume-bar-value, #OMCO #player .jp-volume-bar-value {
    background-image: none;
 }
-#collapseOne #player #jp-title {
+#OMCO #player #jp-title {
    font-size: 14px;
    font-weight: bold;
    text-overflow: ellipsis;
    overflow: hidden;
    white-space: nowrap;
+   padding-left: 2px;
 }
-#collapseOne #player #jp-artist, #collapseOne #player .details div {
+#OMCO #player #jp-artist, #OMCO #player .details div {
    font-size: 12px;
    font-weight: normal;
    text-overflow: ellipsis;
    overflow: hidden;
    white-space: nowrap;
+   padding-left: 2px;
 }
 .details, .jp-current-time, .jp-duration {
    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;

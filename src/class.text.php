@@ -39,12 +39,12 @@ class orgelmanText {
       $str = str_replace(array("\n","\r"), array("",""), $str);
       $str = str_replace(array("<br>","<br />","<hr>","<hr />"), array("<br>","<br>","<hr>","<hr>"), $str);
 
-      return $this->saveText(strip_tags($str,'<br><hr>'));
+      return trim($this->saveText(strip_tags($str,'<br><hr>')));
    }
    public function saveText_stripStand($str) {
       $str = str_replace(array("\n","\r"), array("",""), $str);
       $str = str_replace(array("<br>","<br />","<hr>","<hr />"), array("<br>","<br>","<hr>","<hr>"), $str);
-      return $this->saveText(strip_tags($str,"<div><br><hr><ul><ol><li><p><h1><h2><h3><h4><h5><h6><small><span><big><sub><sup><i><em><b><strong><u><s><a><img><blockquote><cite><pre><code><samp><table><tbody><thead><tfoot><tr><td><th>"));
+      return trim($this->saveText(strip_tags($str,"<div><br><hr><ul><ol><li><p><h1><h2><h3><h4><h5><h6><small><span><big><sub><sup><i><em><b><strong><u><s><a><img><blockquote><cite><pre><code><samp><table><tbody><thead><tfoot><tr><td><th>")));
    }
    public function saveText_stripFull($str,$newline=0) {
       if(is_array($str)) {
@@ -54,39 +54,19 @@ class orgelmanText {
          }
          $str = $new;
       }
-      return $this->saveText(strip_tags($str),0,$newline);
+      return trim($this->saveText(strip_tags($str),0,$newline));
    }
    public function saveText($str) {
-      $taglist             = array("");
-
-      $str3                = strtolower(substr(preg_replace('!\s+!', ' ', strip_tags($str)), 0, 25));
-      
       $str                 = str_replace($this->replaceNew,$this->replaceOld,$str);
       $str                 = str_replace(array("\n","\r","|"),array("<br>\n","","&#124;"),html_entity_decode(html_entity_decode($str)));
       $str                 = str_replace(array("<br>","<br />","<hr>","<hr />"), array("<br>","<br>","<hr>","<hr>"), $str);
       $str                 = preg_replace('/\s\s+/', ' ',$str);
+      $str                 = addslashes(utf8_encode(htmlentities(preg_replace('!\s+!', ' ', str_replace(array("\n","\r"),"",$str )))));
       
+      $taglist             = array("");
       preg_match_all("/<(\/|)([a-zA-Z1-9]{1,})(.*?)([a-zA-Z1-9]|\/| |'|\")>/xi", $str, $output_array);
-      foreach($output_array[0] as $tag) {
-         $id                  = str_replace("0","O",strtoupper("T".uniqid()."T"));
-         $taglist[$id]        = $tag;
-         $str                 = str_replace($tag,$id,$str);
-      }
-      $str              = addslashes(htmlentities($str));
       
-      $str2             = "";
-      foreach($taglist as $id => $tag) {
-         if(($tag!="") && ($id!="")) {
-            $str2         .= addslashes(htmlentities($id))."/TA()XYX()GG/".addslashes(htmlentities($tag))."|";
-         }
-      }
-      
-      $str              = $this->encrypt(utf8_encode(preg_replace('!\s+!', ' ', str_replace(array("\n","\r"),"",$str ))),"savetextfi","savetextfi");
-      if($str2!="") {
-         $str2          = $this->encrypt(utf8_encode(preg_replace('!\s+!', ' ', str_replace(array("\n","\r"),"",$str2))),"savetextse","savetextse");
-      }
-      
-      return addslashes($str3."|".$this->encrypt($str."|".$str2,"savingtext","savingtext"));
+      return trim($str);
    }
    public function loadText($str) {
       $str = stripslashes($str);
@@ -116,7 +96,7 @@ class orgelmanText {
       }
       $str             = preg_replace('!\s+!', ' ', $str);
       
-      return $this->shortCode($str);
+      return $this->shortCode(html_entity_decode($str));
    }
    public function shortCode($str="",$over=false) {
       $debug = $this->debug;
@@ -127,21 +107,28 @@ class orgelmanText {
          $str = preg_replace("/(console.(...)\((\"|\')(.*)(\"|\'))\);/ix", "", $str);
          $str = preg_replace("/<!--[^[if][^<![](.|\s)*?-->/", "", $str);
          $str = preg_replace('!/\*.*?\*/!s', '', $str);
-         $str = preg_replace('/\n\s*\n/', "\n", $str);
-         $str = preg_replace('/\s+/', ' ',str_replace(array("  ","\n","\r"),array(" ","",""),$str));
+         
+         $pattern = "/<li[^>]*><\\/li[^>]*>/"; 
+         //$pattern = "/<[^\/>]*>([\s]?)*<\/[^>]*>/";  use this pattern to remove any empty tag
+         $str = preg_replace($pattern, '', $str); 
+         
+         //$str = preg_replace('/\n\s*\n/', "\n", $str);
+         //$str = preg_replace('/\s+/', ' ',str_replace(array("  ","\n","\r"),array(" ","",""),$str));
             
-         $str = preg_replace("/>\s*</isx", "><", $str);
-         $str = preg_replace("/;\s*/isx", ";", $str);
-         $str = preg_replace("/(\s*\{\s*)/isx", "{", $str);
-         $str = preg_replace("/(\s*\}\s*)/isx", "}", $str);
-         $str = preg_replace("/\/\/?\s*\*[\s\S]*?\*\s*\/\/?/ix", "",$str);
+         //$str = preg_replace("/>\s*</isx", "><", $str);
+         //$str = preg_replace("/;\s*/isx", ";", $str);
+         //$str = preg_replace("/\/\/?\s*\*[\s\S]*?\*\s*\/\/?/ix", "",$str);
          $str = str_replace(array("\n","\r","console.log(obj);","console.log(data);"),"",preg_replace("/\s{2,}/", ' ',$str));
             
          $old= array('( ',' )','function ()',') {',', funct','if (','if(! ',' == ',' === '," != "," !== ",'", "',"', '",'(! ');
          $new= array('(' ,')' ,'function()' ,'){' ,',funct' ,'if(' ,'if(!' ,'=='  ,'==='  ,"!="  ,"!=="  ,'","' ,"','" ,'(!' );
            
-         $str = str_replace($old,$new,$str);
-         $str = preg_replace("/^\s/", '',$str);
+         //$str = str_replace($old,$new,$str);
+         
+         
+         //$str = preg_replace('/\s+/', ' ',$str);
+         //$str = preg_replace("/^\s/", ' ',$str);
+         //$str = trim($str);
       }
       $old= array('[[n]]');
       $new= array("\n"   );
@@ -156,13 +143,13 @@ class orgelmanText {
    }
    
    public function encryptEmail($email) {
-      return $this->encrypt(trim($email), $this->secondKey,"cryptEmail");
+      return trim($email);
    }
    public function decryptEmail($emailhash) {
       if (strpos($emailhash,'@') !== false) {
          return $emailhash;
       } else {
-         return $this->decrypt($emailhash, $this->secondKey);
+         return $emailhash;
       }
    } 
    
@@ -175,41 +162,25 @@ class orgelmanText {
       $u = substr(substr($this->toAscii(md5(uniqid())), 0, (10-strlen(substr($this->toAscii($prekey), 0, 10)))).substr($this->toAscii($prekey), 0, 10), 0, 10);
       
       if($string!="") {
-         $string = trim("_!--_".$u."_".str_replace($this->replaceOld,$this->replaceNew,base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, md5($u.$key), trim($string), MCRYPT_MODE_CBC, md5(md5($u.$key)))))."_--!_");
+         $string = $string;
       }
       
       return $string; 
    }
    public function decrypt($encrypted, $key="") {
-      if($key=="") {
-         $key = $this->secondKey;
-      }
-      $decrypt = explode("_",$encrypted);
-      
-      if(($encrypted!="") && (((substr($encrypted,0,5) == "_!--_") && (substr($encrypted,15,1) == "_") && (substr($encrypted,-5) == '_--!_')))) {
-         $dec = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, md5($decrypt[2].$key), base64_decode(str_replace($this->replaceNew,$this->replaceOld,trim($decrypt[3]))), MCRYPT_MODE_CBC, md5(md5($decrypt[2].$key))), "\0");
-         return $dec;
-      } else {
-         return $encrypted;
-      }
+      return $encrypted;
    }
    public function generateHash($password, $user) {
       $user = strtolower($user);
       if (defined("CRYPT_BLOWFISH") && CRYPT_BLOWFISH) {
          $salt = '$2y$11$' . substr(md5(uniqid(rand(), true)), 0, $this->saltMaxLength);
          $hash = crypt($password, $salt);
-         $hash = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, md5($this->key), $hash, MCRYPT_MODE_CBC, md5(md5($this->key))));
-         $hash = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, md5($this->secondKey), $hash, MCRYPT_MODE_CBC, md5(md5($this->secondKey))));
-         $hash = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, md5($user), $hash, MCRYPT_MODE_CBC, md5(md5($user))));
-         return $this->encrypt($hash,$user,"safestpass");
       }
+      return $hash;
    }
    public function verifyHash($password, $hashedPassword, $user) {
       $user = strtolower($user);
-      $hashedPassword = $this->decrypt($hashedPassword,$user);
-      $hashedPassword = rtrim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, md5($user), base64_decode($hashedPassword), MCRYPT_MODE_CBC, md5(md5($user))), "\0");
-      $hashedPassword = rtrim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, md5($this->secondKey), base64_decode($hashedPassword), MCRYPT_MODE_CBC, md5(md5($this->secondKey))), "\0");
-      $hashedPassword = rtrim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, md5($this->key), base64_decode($hashedPassword), MCRYPT_MODE_CBC, md5(md5($this->key))), "\0");
+      
       return crypt($password, $hashedPassword) == $hashedPassword;
    }
    

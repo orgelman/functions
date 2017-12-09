@@ -300,10 +300,10 @@ class orgelmanFunctions {
    }
    
    
-   public function botTrap($input,$subject="",$fa="") {
+   public function botTrap($input,$subject="",$fa="",$style="",$nojs=false) {
       $u                = uniqid();
       $str              = '';
-      if($input!="") {
+      if(($input!="") && (!$nojs)) {
          if (!filter_var($input, FILTER_VALIDATE_EMAIL) === false) {
             if($fa=="") {
                $fa = "at";
@@ -325,7 +325,7 @@ class orgelmanFunctions {
             $str .= '         if (typeof(jQuery) == "undefined") {'."\n";
             $str .= '            if (! jQueryScriptOutputted'.$u.') {'."\n";
             $str .= '               jQueryScriptOutputted'.$u.' = true;'."\n";
-            $str .= '               document.write("<scr" + "ipt type=\'text/javascript\' src=\'//code.jquery.com/jquery-3.1.1.min.js\' integrity=\'sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=\' crossorigin=\'anonymous\'></scr" + "ipt>");'."\n";
+            $str .= '               document.write("<scr" + "ipt type=\'text/javascript\' src=\'//cdn.orgelman.systems/jQuery/latest.min.js\'></scr" + "ipt>");'."\n";
             $str .= '            }'."\n";
             $str .= '            setTimeout("initJQuery'.$u.'()", 50);'."\n";
             $str .= '         } else {'."\n";
@@ -336,8 +336,8 @@ class orgelmanFunctions {
             $str .= '               var linktext = pre + "&#64;" + dom + "." + "'.$parts["top"].'";'."\n";
             $str .= '               var linktextP = pre;'."\n";
             $str .= '               var linktextD = dom + "." + "'.$parts["top"].'";'."\n";
-            $str .= '               $( ".'.$id.'"   ).html("<"+"a style=\'cursor:pointer;\' class=\'mail\' mail=" + linktextP + " dom=" + linktextD + "><" + "/a>");'."\n";
-            $str .= '               $( ".'.$id.' a" ).each(function(){var t=$(this).attr("mail")+"&#64;"+$(this).attr("dom");$(this).html("<i class=\'fa fa-'.$fa.'\'></i>&#32; "+t)});'."\n";
+            $str .= '               $( ".'.$id.'"   ).html("<"+"a style=\'cursor:pointer; '.$style.'\' target=\'_blank\' class=\'mail\' mail=" + linktextP + " dom=" + linktextD + "><" + "/a>");'."\n";
+            $str .= '               $( ".'.$id.' a" ).each(function(){var t=$(this).attr("mail")+"&#64;"+$(this).attr("dom");$(this).html("<i class=\'fa fa-fw fa-'.$fa.'\'></i>&#32; "+t)});'."\n";
             $str .= '               $( ".'.$id.' a" ).click(function(e){e.preventDefault();var t="mail"+"to:"+$(this).attr("mail")+\'@\'+$(this).attr("dom")+"'.$subject.'";if($(this).attr("mail")){location.href=t}});'."\n";
             $str .= '            });'."\n";
             $str .= '         }'."\n";
@@ -348,7 +348,7 @@ class orgelmanFunctions {
             $str .= '      <a href="http://enable-javascript.com/">Javascript</a>'."\n";
             $str .= '   </noscript>'."\n";
             $str .= '</span>'."\n";
-         } else {
+         } else if (!$nojs) {
             if($fa=="") {
                $fa = "phone";
             }
@@ -362,15 +362,15 @@ class orgelmanFunctions {
             $str .= '         if (typeof(jQuery) == "undefined") {'."\n";
             $str .= '            if (! jQueryScriptOutputted'.$u.') {'."\n";
             $str .= '               jQueryScriptOutputted'.$u.' = true;'."\n";
-            $str .= '               document.write("<scr" + "ipt type=\'text/javascript\' src=\'//code.jquery.com/jquery-3.1.1.min.js\' integrity=\'sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=\' crossorigin=\'anonymous\'></scr" + "ipt>");'."\n";
+            $str .= '               document.write("<scr" + "ipt type=\'text/javascript\' src=\'//cdn.orgelman.systems/jQuery/latest.min.js\'></scr" + "ipt>");'."\n";
             $str .= '            }'."\n";
             $str .= '            setTimeout("initJQuery'.$u.'()", 50);'."\n";
             $str .= '         } else {'."\n";
             $str .= '            $(function() {'."\n";
             $str .= '               console.log("Phonelink");'."\n";
             $str .= '               var phone = "'.$phone.'";'."\n";
-            $str .= '               $( ".'.$id.'"   ).html("<"+"a style=\'cursor:pointer;\' class=\'phone\' phone=" + phone + "><" + "/a>");'."\n";
-            $str .= '               $( ".'.$id.' a" ).each(function(){var t=phone;$(this).html("<i class=\'fa fa-'.$fa.'\'></i>&#32; " + t)});'."\n";
+            $str .= '               $( ".'.$id.'"   ).html("<"+"a style=\'cursor:pointer; '.$style.'\' target=\'_blank\' class=\'phone\' phone=" + phone + "><" + "/a>");'."\n";
+            $str .= '               $( ".'.$id.' a" ).each(function(){var t=phone;$(this).html("<i class=\'fa fa-fw fa-'.$fa.'\'></i>&#32; " + t)});'."\n";
             $str .= '               $( ".'.$id.' a" ).click(function(e){e.preventDefault();var t="tel:"+$(this).attr("phone");if($(this).attr("phone")){location.href=t}});'."\n";
             $str .= '            });'."\n";
             $str .= '         }'."\n";
@@ -381,7 +381,11 @@ class orgelmanFunctions {
             $str .= '      <a href="http://enable-javascript.com/">Javascript</a>'."\n";
             $str .= '   </noscript>'."\n";
             $str .= '</span>'."\n";
+         } else {
+            $str = $input;
          }
+      } else {
+         $str = $input;
       }
       return $str;
    }
@@ -479,23 +483,26 @@ class orgelmanFunctions {
    }
    
    // Get client IP
-   public function get_client_ip() {
-      $ipaddress = '';
-      if (getenv('HTTP_CLIENT_IP'))
-         $ipaddress = getenv('HTTP_CLIENT_IP');
-      else if(getenv('HTTP_X_FORWARDED_FOR'))
-         $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
-      else if(getenv('HTTP_X_FORWARDED'))
-         $ipaddress = getenv('HTTP_X_FORWARDED');
-      else if(getenv('HTTP_FORWARDED_FOR'))
-         $ipaddress = getenv('HTTP_FORWARDED_FOR');
-      else if(getenv('HTTP_FORWARDED'))
-         $ipaddress = getenv('HTTP_FORWARDED');
-      else if(getenv('REMOTE_ADDR'))
-         $ipaddress = getenv('REMOTE_ADDR');
-      else
-         $ipaddress = 'UNKNOWN';
-      
+   public function get_client_ip($ip="") {
+      if($ip!="") {
+         $ipaddress = $ip;
+      } else {
+         $ipaddress = '';
+         if (getenv('HTTP_CLIENT_IP'))
+            $ipaddress = getenv('HTTP_CLIENT_IP');
+         else if(getenv('HTTP_X_FORWARDED_FOR'))
+            $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
+         else if(getenv('HTTP_X_FORWARDED'))
+            $ipaddress = getenv('HTTP_X_FORWARDED');
+         else if(getenv('HTTP_FORWARDED_FOR'))
+            $ipaddress = getenv('HTTP_FORWARDED_FOR');
+         else if(getenv('HTTP_FORWARDED'))
+            $ipaddress = getenv('HTTP_FORWARDED');
+         else if(getenv('REMOTE_ADDR'))
+            $ipaddress = getenv('REMOTE_ADDR');
+         else
+            $ipaddress = 'UNKNOWN';
+      }
       if (!filter_var($ipaddress, FILTER_VALIDATE_IP) === false) {
       } else {
          $ipaddress = 'UNKNOWN';

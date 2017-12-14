@@ -1,13 +1,20 @@
-<?php 
+<?php if(get_included_files()[0]==__FILE__){header("HTTP/1.1 403 Forbidden");die('<h1 style="font-family:arial;">Error 403: Forbidden</h1>');} 
 /**
  * @package orgelman/functions
  * @link    https://github.com/orgelman/functions/
  * @author  Tobias Jonson <git@orgelman.systmes>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ *
+ * -- 
+ *
+ * define("SQL_HOST"       , "host");
+ * define("SQL_PORT"       , "port");
+ * define("SQL_NAME"       , "database");
+ * define("SQL_USERNAME"   , "username");
+ * define("SQL_PASSWORD"   , "password");
+ * define("SQL_PREFIX"     , "");
+ * define("SQL_SOCKET"     , "");
  */
-
-if(get_included_files()[0]==__FILE__){header("HTTP/1.1 403 Forbidden");die('<h1 style="font-family:arial;">Error 403: Forbidden</h1>');} 
-
 class orgelmanSQL {
    public  $DBh            = "";
    
@@ -16,37 +23,45 @@ class orgelmanSQL {
    private $SQL_PASSWORD   = "";
    private $SQL_NAME       = "";
    private $SQL_PREFIX     = "";
+   private $SQL_SOCKET     = "";
    
-   public function __construct($SQL_HOST="",$SQL_USERNAME="",$SQL_PASSWORD="",$SQL_NAME="",$SQL_PREFIX="") {
-      if(defined(SQL_HOST)) {
-         $this->SQL_HOST      = constant(SQL_HOST);
+   public function __construct($SQL_HOST="",$SQL_USERNAME="",$SQL_PASSWORD="",$SQL_NAME="",$SQL_PREFIX="",$SQL_SOCKET="") {
+      //Setting SQL constants
+      if(defined("SQL_HOST")) {
+         $this->SQL_HOST      = constant("SQL_HOST");
       } else {
          $this->SQL_HOST      = $SQL_HOST;
-         define(SQL_HOST,$this->SQL_HOST);
+         define("SQL_HOST",$this->SQL_HOST);
       }
-      if(defined(SQL_USERNAME)) {
-         $this->SQL_USERNAME  = constant(SQL_USERNAME);
+      if(defined("SQL_USERNAME")) {
+         $this->SQL_USERNAME  = constant("SQL_USERNAME");
       } else {
          $this->SQL_USERNAME  = $SQL_USERNAME;
-         define(SQL_USERNAME,$this->SQL_USERNAME);
+         define("SQL_USERNAME",$this->SQL_USERNAME);
       }
-      if(defined(SQL_PASSWORD)) {
-         $this->SQL_PASSWORD  = constant(SQL_PASSWORD);
+      if(defined("SQL_PASSWORD")) {
+         $this->SQL_PASSWORD  = constant("SQL_PASSWORD");
       } else {
          $this->SQL_PASSWORD  = $SQL_PASSWORD;
-         define(SQL_PASSWORD,$this->SQL_PASSWORD);
+         define("SQL_PASSWORD",$this->SQL_PASSWORD);
       }
-      if(defined(SQL_NAME)) {
-         $this->SQL_NAME      = constant(SQL_NAME);
+      if(defined("SQL_NAME")) {
+         $this->SQL_NAME      = constant("SQL_NAME");
       } else {
          $this->SQL_NAME      = $SQL_NAME;
-         define(SQL_NAME,$this->SQL_NAME);
+         define("SQL_NAME",$this->SQL_NAME);
       }
-      if(defined(SQL_PREFIX)) {
-         $this->SQL_PREFIX    = constant(SQL_PREFIX);
+      if(defined("SQL_PREFIX")) {
+         $this->SQL_PREFIX    = constant("SQL_PREFIX");
       } else {
          $this->SQL_PREFIX    = $SQL_PREFIX;
-         define(SQL_PREFIX,$this->SQL_PREFIX);
+         define("SQL_PREFIX",$this->SQL_PREFIX);
+      }
+      if(defined("SQL_SOCKET")) {
+         $this->SQL_SOCKET    = constant("SQL_SOCKET");
+      } else {
+         $this->SQL_SOCKET    = $SQL_SOCKET;
+         define("SQL_SOCKET",$this->SQL_SOCKET);
       }
       
       $this->DBh = $this->StartDBConnection();
@@ -61,12 +76,12 @@ class orgelmanSQL {
             
       } else {
          $DBh = "";
-         $DBh = @mysqli_connect(SQL_HOST,SQL_USERNAME,SQL_PASSWORD,SQL_NAME) or die("Connection error: ".__LINE__);
+         $DBh = @mysqli_connect(SQL_HOST,SQL_USERNAME,SQL_PASSWORD,SQL_NAME) or die("SQL ERROR: Connection error: ".__LINE__);
          if (mysqli_connect_errno()) {
-            die("Connection error: ".__LINE__);
+            die("SQL ERROR: Connection error: ".__LINE__);
          }
          if($DBh=="") {
-            die("Connection error: ".__LINE__);
+            die("SQL ERROR: Connection error: ".__LINE__);
          }
       }
       $this->DBh = $DBh;
@@ -76,6 +91,10 @@ class orgelmanSQL {
       if((isset($this->DBh)) && ($this->DBh!="")) { 
          @mysqli_close($this->DBh);
       }
+   }
+   private function wash($q) {
+      echo $q."\n";
+      return $q;
    }
    private function verify($q,$allow,$caller) {
       if(strtolower(substr(trim($q), 0, strlen("drop"))) === strtolower("drop")) {
@@ -88,7 +107,7 @@ class orgelmanSQL {
          die("SQL ERROR: ".$q."<br>\nCan not alter table<hr>\nCalled: ". $caller["file"]." [".$caller["line"]."]");
       }
       if((strtolower(substr(trim($q), 0, strlen($allow))) === strtolower($allow)) && ((substr(trim($q), -1) === ';'))) {
-         return true;
+         return $q;
       } else {
          if(strtolower(substr(trim($q), 0, strlen($allow))) !== strtolower($allow)) {
             die("SQL ERROR: ".$q."<br>\nString type not match<hr>\nCalled: ". $caller["file"]." [".$caller["line"]."]");
@@ -101,6 +120,21 @@ class orgelmanSQL {
       }
       return false;
    }
+   public function insert($variable) {
+      $old = array("  ");
+      $new = array(" ");
+      $variable = $this->DBh->real_escape_string(str_replace($old,$new,trim(urldecode($variable))));
+      
+      return $variable; 
+   }
+   public function getRequest($str="") {
+      if(isset($_REQUEST[$str])) {
+         $str = $this->SQL_insert($_REQUEST[$str]);
+      } else {
+         return false;
+      }
+      return $str; 
+   }
    public function SQL($q,$allow="select") { 
       $arr     = array();
       $sel     = "Select";
@@ -112,10 +146,15 @@ class orgelmanSQL {
          $i=0;
          foreach($q as $v => $qu) {
             if(strpos($qu, $prefix) == false) {
-               die("SQL missing ".$prefix." Called: ". $caller["file"]." [".$caller["line"]."]");
+               die("SQL ERROR: Missing ".$prefix." Called: ". $caller["file"]." [".$caller["line"]."]");
             }
             if($qu!="") {
-               $qu = str_replace($prefix,"`".constant("SQL_NAME")."`.`".constant("SQL_PREFIX")."",$qu);
+               $strpos = strpos($qu,$prefix);
+               if(substr($qu,($strpos-1),1) == "`") {
+                  $qu = str_replace($prefix,constant("SQL_NAME")."`.`".constant("SQL_PREFIX")."",$qu);
+               } else {
+                  $qu = str_replace($prefix,"`".constant("SQL_NAME")."`.`".constant("SQL_PREFIX")."",$qu);
+               }
             }
             $this->verify($qu,$allow,$caller);
             if($i!=0) {
@@ -127,14 +166,20 @@ class orgelmanSQL {
          $q = $query.";";
       } else {
          if(strpos($q, $prefix) == false) {
-            die("SQL missing ".$prefix." Called: ". $caller["file"]." [".$caller["line"]."]");
+            die("SQL ERROR: Missing ".$prefix." Called: ". $caller["file"]." [".$caller["line"]."]");
          }
          if($q!="") {
-            $q = str_replace($prefix,"`".constant("SQL_NAME")."`.`".constant("SQL_PREFIX")."",$q);
+            $strpos = strpos($q,$prefix);
+            if(substr($q,($strpos-1),1) == "`") {
+               $q = str_replace($prefix,constant("SQL_NAME")."`.`".constant("SQL_PREFIX")."",$q);
+            } else {
+               $q = str_replace($prefix,"`".constant("SQL_NAME")."`.`".constant("SQL_PREFIX")."",$q);
+            }
          }
          $this->verify($q,$allow,$caller);
       }
       if($q!="") {
+         $q = $this->wash($q);
          $this->verify($q,$allow,$caller);
          if(isset($this->DBh)) {} else {
             $this->DBh = $this->StartDBConnection();

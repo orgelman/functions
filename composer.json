@@ -12,7 +12,6 @@
     ],
     "require": {
         "php": ">=5.0.0",
-        "cbschuld/browser.php": "*",
         "greenlion/php-sql-parser": "*"
     },
     "autoload": {

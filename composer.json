@@ -9,8 +9,7 @@
         }
     ],
     "require": {
-        "php": ">=5.0.0",
-        "greenlion/php-sql-parser": "*"
+        "php": ">=5.0.0"
     },
     "autoload": {
         "classmap": [

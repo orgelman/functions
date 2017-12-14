@@ -11,10 +11,9 @@
         }
     ],
     "require": {
-        "php": ">=5.0.0"
-    },
-    "require-dev": {
-        "cbschuld/browser.php": "*"
+        "php": ">=5.0.0",
+        "cbschuld/browser.php": "*",
+        "greenlion/php-sql-parser": "*"
     },
     "autoload": {
         "classmap": [

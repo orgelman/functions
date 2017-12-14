@@ -2,8 +2,6 @@
     "name": "orgelman/functions",
     "type": "library",
     "description": "Functions is filed will good-to-have functions",
-    "minimum-stability": "dev",
-    "prefer-stable" : true,
     "authors": [
         {
             "name": "Tobias Jonson",
